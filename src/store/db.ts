@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import { StoreUnavailableError } from './errors';
+import { SCHEMA_STEPS, type SchemaStep } from './schemaSteps';
 import type { DayType, Exercise, MetaRow, OutboxRow, Workout, WorkoutExercise, WorkoutSet } from './types';
 
 export const DATABASE_NAME = 'gymbro';
@@ -13,17 +14,12 @@ export class GymBroDatabase extends Dexie {
   meta!: Table<MetaRow, string>;
   outbox!: Table<OutboxRow, number>;
 
-  constructor() {
+  constructor(steps: SchemaStep[] = SCHEMA_STEPS) {
     super(DATABASE_NAME);
-    this.version(1).stores({
-      exercises: 'id, nameKey, updatedAt',
-      dayTypes: 'id, updatedAt',
-      workouts: 'id, startedAt, updatedAt',
-      workoutExercises: 'id, workoutId, exerciseId, updatedAt',
-      sets: 'id, workoutExerciseId, [exerciseId+savedAt], updatedAt',
-      meta: 'key',
-      outbox: '++seq, table',
-    });
+    for (const step of steps) {
+      const version = this.version(step.version).stores(step.stores);
+      if (step.upgrade) version.upgrade(step.upgrade);
+    }
   }
 }
 

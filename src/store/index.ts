@@ -10,3 +10,8 @@ export * from './workouts';
 export * from './workoutExercises';
 export * from './sets';
 export * from './history';
+export { exportBackup } from './exportBackup';
+export { importBackup } from './importBackup';
+export { exportSetsCsv } from './exportSetsCsv';
+export { restoreFromSnapshot } from './restoreSnapshot';
+export type { SchemaStep } from './schemaSteps';
