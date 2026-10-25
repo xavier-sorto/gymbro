@@ -1,4 +1,8 @@
+import { registerSW } from 'virtual:pwa-register';
 import { openStore } from './store';
+import { registerServiceWorker } from './pwa/registerServiceWorker';
+
+registerServiceWorker(registerSW);
 
 openStore().catch((error: unknown) => {
   console.error('GymBro could not open its store', error);
