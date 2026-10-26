@@ -40,9 +40,26 @@ export class MigrationError extends Error {
   }
 }
 
+export type ImportErrorReason = 'not-gymbro' | 'newer-version' | 'invalid-record' | 'too-large';
+
+const IMPORT_MESSAGES: Record<ImportErrorReason, string> = {
+  'not-gymbro': "This isn't a GymBro backup file.",
+  'newer-version': 'This backup is from a newer GymBro. Update the app first.',
+  'invalid-record': 'The backup file is damaged',
+  'too-large': 'File is too large to be a GymBro backup.',
+};
+
 export class ImportError extends Error {
-  constructor(readonly reason: string) {
-    super(`Backup import failed: ${reason}`);
+  constructor(readonly reason: ImportErrorReason, readonly table?: string, readonly index?: number, options?: ErrorOptions) {
+    super(reason === 'invalid-record' ? `${IMPORT_MESSAGES[reason]} (problem in ${table}).` : IMPORT_MESSAGES[reason], options);
     this.name = 'ImportError';
+  }
+}
+
+/** An older app version opened data written by a newer one (Dexie VersionError, after a rollback). */
+export class DataNewerThanAppError extends Error {
+  constructor(options?: ErrorOptions) {
+    super('This version is older than your data. Restore from before the update, or cancel.', options);
+    this.name = 'DataNewerThanAppError';
   }
 }
