@@ -25,7 +25,7 @@ describe('Backup & data screen', () => {
     fireEvent.click(screen.getByText('Export backup file'));
     await screen.findByText(/Last exported/);
     const [{ files }] = share.mock.calls[0] as unknown as [{ files: File[] }];
-    expect(files[0].name).toMatch(/^gymbro-backup-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(files[0]?.name).toMatch(/^gymbro-backup-\d{4}-\d{2}-\d{2}\.json$/);
   });
 
   it('exports the spreadsheet as a CSV', async () => {
@@ -35,7 +35,7 @@ describe('Backup & data screen', () => {
     fireEvent.click(screen.getByText('Export spreadsheet'));
     await waitFor(() => expect(share).toHaveBeenCalled());
     const [{ files }] = share.mock.calls[0] as unknown as [{ files: File[] }];
-    expect(files[0].name).toMatch(/\.csv$/);
+    expect(files[0]?.name).toMatch(/\.csv$/);
   });
 
   it('shows "Couldn\'t export. Try again." when sharing and downloading both fail', async () => {
