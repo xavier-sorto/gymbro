@@ -16,9 +16,22 @@ describe('exercises', () => {
     expect(error.existingId).toBe(SEED_BENCH);
   });
 
-  it('finds similar names', async () => {
-    const names = (await findSimilarExercises('Dumbell Bench Press')).map((e) => e.name);
+  it.each(['Dumbell Bench', 'bench press', 'Dumbell Bench Press'])('finds Dumbbell Bench Press for %s', async (typed) => {
+    const names = (await findSimilarExercises(typed)).map((e) => e.name);
     expect(names).toContain('Dumbbell Bench Press');
+  });
+
+  it('matches only exactly under five characters', async () => {
+    const curl = await createExercise({ name: 'Curl', kind: 'weighted', category: 'isolation' });
+    await createExercise({ name: 'Curls', kind: 'weighted', category: 'isolation' });
+    expect((await findSimilarExercises('Curl')).map((e) => e.id)).toEqual([curl.id]);
+  });
+
+  it('never returns more than five', async () => {
+    for (let i = 0; i < 7; i++) {
+      await createExercise({ name: `Cable Fly ${i}`, kind: 'weighted', category: 'isolation' });
+    }
+    expect(await findSimilarExercises('Cable Fly')).toHaveLength(5);
   });
 
   it('applies category defaults and validates fields', async () => {
