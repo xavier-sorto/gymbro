@@ -57,15 +57,15 @@ describe('chart values', () => {
 describe('chart layout', () => {
   it('puts one point in the middle of the plot and handles equal values', () => {
     const layout = layoutChart([{ startedAt: 1, line: 50, bar: 100 }]);
-    expect(layout.points).toHaveLength(1);
-    expect(layout.points[0].x).toBeCloseTo(181);
+    expect(layout.points.map((point) => point.x)).toEqual([181]);
     expect(layout.ticks.map((t) => t.label)).toEqual(['51', '50', '49']);
   });
 
   it('places higher values higher up, oldest point on the left', () => {
     const { points } = layoutChart([{ startedAt: 1, line: 40, bar: null }, { startedAt: 2, line: 60, bar: null }]);
-    expect(points[0].x).toBeLessThan(points[1].x);
-    expect(points[1].lineY).toBeLessThan(points[0].lineY);
-    expect(points[0].barY).toBeNull();
+    const [older, newer] = points as [(typeof points)[number], (typeof points)[number]];
+    expect(older.x).toBeLessThan(newer.x);
+    expect(newer.lineY).toBeLessThan(older.lineY);
+    expect(older.barY).toBeNull();
   });
 });
