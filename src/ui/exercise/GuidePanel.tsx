@@ -25,18 +25,26 @@ export function GuidePanel({ kind, guide, status }: GuidePanelProps) {
   }
   const { last, best, target } = guide;
   return (
-    <section class="guide">
+    <section class="guide guide-stats">
       {last && (
-        <p>
-          Last time: {formatSets(kind, last.workingSets)} ({formatShortDate(last.startedAt)})
-        </p>
+        <div class="stat">
+          <p class="stat-key">Last time</p>
+          <p class="stat-value">{formatSets(kind, last.workingSets)}</p>
+          <p class="stat-sub">{formatShortDate(last.startedAt)}</p>
+        </div>
       )}
-      {best && <p>Best: {formatSet(kind, { weightLb: best.weightLb ?? null, reps: best.reps ?? null, seconds: best.seconds ?? null })}</p>}
+      {best && (
+        <div class="stat">
+          <p class="stat-key">Best</p>
+          <p class="stat-value">{formatSet(kind, { weightLb: best.weightLb ?? null, reps: best.reps ?? null, seconds: best.seconds ?? null })}</p>
+        </div>
+      )}
       {target && (
-        <p>
-          Today: {formatSets(kind, target.sets)}
-          {target.note && ` — ${target.note}`}
-        </p>
+        <div class="stat stat-today">
+          <p class="stat-key">Today</p>
+          <p class="stat-value">{formatSets(kind, target.sets)}</p>
+          {target.note && <p class="stat-sub">{target.note}</p>}
+        </div>
       )}
     </section>
   );

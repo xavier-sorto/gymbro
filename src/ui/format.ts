@@ -26,6 +26,11 @@ export function formatShortDate(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+/** "Mon, Oct 26". */
+export function formatWeekdayDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
 export function formatTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }

@@ -7,7 +7,15 @@
 .exercise-title + textarea { margin-top: 8px; }
 .guide { display: grid; gap: 8px; margin: 12px 0 4px; padding: 0; }
 .guide p { background: var(--surface); border-radius: 16px; padding: 12px 14px; font-weight: 600; }
-.guide p:last-child:not(.hint) { background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent); }
+.guide-stats { grid-template-columns: 1.15fr 1fr 1fr; gap: 8px; }
+.stat { background: var(--surface); border-radius: 16px; padding: 10px; min-width: 0; }
+.guide .stat p { background: none; padding: 0; border-radius: 0; }
+.stat-key { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.guide .stat-value { font-size: 16px; font-weight: 800; margin-top: 4px; overflow-wrap: anywhere; }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.stat-today { background: var(--accent-soft); border: 1px solid var(--accent-line); }
+.stat-today .stat-key, .stat-today .stat-value { color: var(--accent); }
+.stat-today .stat-sub { color: var(--text); font-weight: 600; }
 .guide .hint { background: none; }
 .logged-sets { margin-top: 10px; }
 .logged-sets button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; margin: 4px 0; padding: 0 14px; text-align: left; font-size: 20px; font-weight: 700; border-radius: var(--radius-small); }

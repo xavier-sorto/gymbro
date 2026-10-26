@@ -4,7 +4,7 @@ import { useApp } from '../AppContext';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { reportError } from '../errors';
-import { formatTime } from '../format';
+import { formatTime, formatWeekdayDate } from '../format';
 import { navigate } from '../router';
 import { useLoad } from '../useLoad';
 import { FinishWorkoutButton } from './FinishWorkoutButton';
@@ -32,6 +32,7 @@ export function HomeScreen() {
         <h1 class="wordmark">
           Gym<b>Bro</b>
         </h1>
+        <span class="pill today-date">{formatWeekdayDate(Date.now())}</span>
       </header>
       {notice && (
         <p class="notice toast">
