@@ -8,7 +8,8 @@ export type Route =
   | { name: 'days' }
   | { name: 'day'; dayTypeId: string }
   | { name: 'history' }
-  | { name: 'library' };
+  | { name: 'library' }
+  | { name: 'data' };
 
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
@@ -20,7 +21,7 @@ export function parseRoute(hash: string): Route {
   }
   if (first === 'days') return second ? { name: 'day', dayTypeId: decodeURIComponent(second) } : { name: 'days' };
   if (first === 'history') return { name: 'history' };
-  if (first === 'library') return { name: 'library' };
+  if (first === 'library') return second === 'data' ? { name: 'data' } : { name: 'library' };
   return { name: 'home' };
 }
 

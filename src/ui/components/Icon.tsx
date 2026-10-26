@@ -13,6 +13,7 @@ const ICON_PATHS = {
   close: 'M6 6l12 12M18 6L6 18',
   arrowUp: 'M12 19V5M6 11l6-6 6 6',
   arrowDown: 'M12 5v14M6 13l6 6 6-6',
+  table: 'M4 4h16v16H4zM4 10h16M10 4v16',
   search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4',
 } as const;
 

@@ -7,6 +7,7 @@ import { reportError } from './errors';
 import { RestTimerBar } from './rest/RestTimerBar';
 import { navigate, needsActiveWorkout, parseRoute, useRoute, type Route } from './router';
 import { AddExerciseScreen } from './screens/AddExerciseScreen';
+import { DataScreen } from './screens/DataScreen';
 import { DayTypeEditScreen } from './screens/DayTypeEditScreen';
 import { DayTypesScreen } from './screens/DayTypesScreen';
 import { ComingSoonScreen } from './screens/ComingSoonScreen';
@@ -32,6 +33,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <DayTypeEditScreen key={route.dayTypeId} dayTypeId={route.dayTypeId} />;
     case 'history':
       return <ComingSoonScreen title="History" />;
+    case 'data':
+      return <DataScreen />;
     case 'library':
       return <ComingSoonScreen title="Library" />;
     default:
