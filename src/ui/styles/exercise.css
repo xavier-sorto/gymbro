@@ -22,23 +22,23 @@
 .set-mark { font-size: 12px; font-weight: 800; padding: 3px 7px; border-radius: 7px; background: var(--warm-soft); color: var(--warm); }
 
 /* The logger is docked above the tab bar on the exercise screen, and in-flow inside the edit sheet. */
-.next-set { display: grid; gap: 6px; }
-.screen > .next-set { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-bar) + var(--safe-bottom)); width: min(var(--column), 100%); z-index: 6; padding: 12px 16px; background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.45); }
+.next-set { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.screen > .next-set { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-bar) + var(--safe-bottom)); width: min(var(--column), 100%); z-index: 6; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.45); }
 body:has(.rest-bar) .screen > .next-set { bottom: calc(var(--bottom-bar) + var(--safe-bottom) + var(--rest-height)); }
 .next-set .field-error { margin: 0; }
 .next-set-failed { border: 2px solid var(--danger); }
-.stepper-field { margin: 0; padding: 8px; border-radius: 18px; background: var(--bg); text-align: center; }
+.stepper-field { min-width: 0; margin: 0; padding: 8px; border-radius: 18px; background: var(--bg); text-align: center; }
 .stepper-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 .stepper-controls { display: flex; align-items: center; gap: 8px; }
-.stepper-controls input { flex: 1; min-width: 0; min-height: 52px; background: none; text-align: center; font-size: 40px; font-weight: 800; padding: 0; }
-.stepper-controls button { width: 64px; height: 52px; padding: 0; display: grid; place-items: center; background: var(--surface-2); }
+.stepper-controls input { flex: 1 1 0; width: 0; min-width: 0; min-height: 52px; background: none; text-align: center; font-size: 40px; font-weight: 800; padding: 0; }
+.stepper-controls button { flex: none; width: 64px; height: 52px; padding: 0; display: grid; place-items: center; background: var(--surface-2); }
 .warmup-toggle, .checkbox-row { display: flex !important; align-items: center; gap: 10px; min-height: 44px; color: var(--muted); font-weight: 700; }
 .warmup-toggle input, .checkbox-row input { min-height: 22px; width: 22px; accent-color: var(--accent); }
 .next-set .primary-button { margin: 4px 0 0; min-height: 60px; font-size: 20px; border-radius: 20px; }
 
 /* Rest timer */
-.rest-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-bar) + var(--safe-bottom)); width: min(var(--column), 100%); min-height: var(--rest-height); z-index: 9; display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 18px; background: var(--rest-surface); border-top: 1px solid var(--rest-line); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5); }
-.rest-bar-clock { flex: 1; display: grid; }
+.rest-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-bar) + var(--safe-bottom)); width: min(var(--column), 100%); min-height: var(--rest-height); z-index: 9; display: flex; align-items: center; gap: 12px; padding: 12px max(14px, env(safe-area-inset-right, 0px)) 12px max(18px, env(safe-area-inset-left, 0px)); background: var(--rest-surface); border-top: 1px solid var(--rest-line); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5); }
+.rest-bar-clock { flex: 1; min-width: 0; display: grid; }
 .rest-bar-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
 .rest-bar-time { font-size: 44px; font-weight: 800; line-height: 1.05; }
 .rest-bar .progress { height: 5px; margin: 8px 0 0; background: rgba(255, 255, 255, 0.08); }
