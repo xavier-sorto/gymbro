@@ -49,6 +49,9 @@ export function HomeScreen() {
           <button type="button" class="big-button secondary" onClick={() => start(null)}>
             Empty workout
           </button>
+          <a class="link-button" href="#/days">
+            Edit day types
+          </a>
         </section>
       )}
     </main>

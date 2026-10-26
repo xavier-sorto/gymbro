@@ -1,22 +1,16 @@
 import { useState } from 'preact/hooks';
-import {
-  addWorkoutExercise,
-  createExercise,
-  findSimilarExercises,
-  getDayType,
-  updateDayType,
-  DuplicateNameError,
-} from '../../store';
-import type { ExerciseCategory, ExerciseKind, Exercise, Workout } from '../../store';
+import { createExercise, findSimilarExercises, DuplicateNameError } from '../../store';
+import type { DayType, Exercise, ExerciseCategory, ExerciseKind } from '../../store';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { reportError } from '../errors';
-import { useLoad } from '../useLoad';
 
 interface CreateExerciseFormProps {
   initialName: string;
-  workout: Workout;
+  /** When given, the form offers "Also add to <day type>" (off by default). */
+  alsoAddTo?: DayType | null;
   onUseExisting: (exerciseId: string) => void;
-  onCreated: () => void;
+  /** Called with the new exercise once it exists; it throws if what follows (adding it somewhere) fails. */
+  onCreated: (exercise: Exercise, alsoAdd: boolean) => Promise<void>;
 }
 
 const KINDS: { value: ExerciseKind; label: string }[] = [
@@ -30,28 +24,18 @@ const CATEGORIES: { value: ExerciseCategory; label: string }[] = [
   { value: 'isolation', label: 'Isolation' },
 ];
 
-export function CreateExerciseForm({ initialName, workout, onUseExisting, onCreated }: CreateExerciseFormProps) {
+export function CreateExerciseForm({ initialName, alsoAddTo, onUseExisting, onCreated }: CreateExerciseFormProps) {
   const [name, setName] = useState(initialName);
   const [kind, setKind] = useState<ExerciseKind>('weighted');
   const [category, setCategory] = useState<ExerciseCategory>('compound');
-  const [alsoAddToDay, setAlsoAddToDay] = useState(false);
+  const [alsoAdd, setAlsoAdd] = useState(false);
   const [similar, setSimilar] = useState<Exercise[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const dayType = useLoad(
-    'loading the day type',
-    "Couldn't load the day type.",
-    () => (workout.dayTypeId ? getDayType(workout.dayTypeId) : Promise.resolve(null)),
-    [workout.dayTypeId],
-  );
 
   const create = async () => {
     try {
       const exercise = await createExercise({ name, kind, category });
-      await addWorkoutExercise(workout.id, exercise.id);
-      if (alsoAddToDay && dayType.data) {
-        await updateDayType(dayType.data.id, { exerciseIds: [...dayType.data.exerciseIds, exercise.id] });
-      }
-      onCreated();
+      await onCreated(exercise, alsoAdd);
     } catch (failure) {
       const message =
         failure instanceof DuplicateNameError ? 'An exercise with this name already exists. Pick it from the list.' : "Couldn't create the exercise. Try again.";
@@ -87,10 +71,10 @@ export function CreateExerciseForm({ initialName, workout, onUseExisting, onCrea
           {CATEGORIES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </label>
-      {dayType.data && (
+      {alsoAddTo && (
         <label class="checkbox-row">
-          <input type="checkbox" checked={alsoAddToDay} onChange={(event) => setAlsoAddToDay(event.currentTarget.checked)} />
-          Also add to {dayType.data.name}
+          <input type="checkbox" checked={alsoAdd} onChange={(event) => setAlsoAdd(event.currentTarget.checked)} />
+          Also add to {alsoAddTo.name}
         </label>
       )}
       {similar.length > 0 && (

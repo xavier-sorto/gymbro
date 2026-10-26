@@ -1,7 +1,7 @@
 import type { Route } from '../router';
 
 const TABS = [
-  { label: 'Workout', hash: '#/', routes: ['home', 'workout', 'exercise', 'add'] },
+  { label: 'Workout', hash: '#/', routes: ['home', 'workout', 'exercise', 'add', 'days', 'day'] },
   { label: 'History', hash: '#/history', routes: ['history'] },
   { label: 'Library', hash: '#/library', routes: ['library'] },
 ];

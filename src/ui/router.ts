@@ -5,6 +5,8 @@ export type Route =
   | { name: 'workout' }
   | { name: 'exercise'; workoutExerciseId: string }
   | { name: 'add' }
+  | { name: 'days' }
+  | { name: 'day'; dayTypeId: string }
   | { name: 'history' }
   | { name: 'library' };
 
@@ -16,10 +18,13 @@ export function parseRoute(hash: string): Route {
     if (second === 'add') return { name: 'add' };
     return { name: 'workout' };
   }
+  if (first === 'days') return second ? { name: 'day', dayTypeId: decodeURIComponent(second) } : { name: 'days' };
   if (first === 'history') return { name: 'history' };
   if (first === 'library') return { name: 'library' };
   return { name: 'home' };
 }
+
+export const dayHash = (dayTypeId: string) => `#/days/${encodeURIComponent(dayTypeId)}`;
 
 export const exerciseHash = (workoutExerciseId: string) => `#/workout/ex/${encodeURIComponent(workoutExerciseId)}`;
 

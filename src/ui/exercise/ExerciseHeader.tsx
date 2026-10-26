@@ -44,7 +44,7 @@ export function ExerciseHeader({ entry, exercise, onChanged }: ExerciseHeaderPro
         maxLength={500}
         value={note}
         onInput={(event) => setNote(event.currentTarget.value)}
-        onBlur={() => note !== entry.note && update('saving the note', { note })}
+        onChange={(event) => event.currentTarget.value !== entry.note && update('saving the note', { note: event.currentTarget.value })}
       />
       {error && <ErrorNotice message={error} />}
     </header>
