@@ -1,0 +1,16 @@
+/* Progress chart screen. Colours and the segmented range buttons come from tokens.css and sheets.css. */
+.progress-title { font-size: 26px; }
+.chart-box .chart-axis { font-size: 10px; fill: var(--faint); }
+.chart-box .chart-line { fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.chart-box .chart-dot { fill: var(--bg); stroke-width: 2; }
+.chart-bar { fill: #2b3320; }
+.chart-legend { display: flex; gap: 16px; font-size: 13px; color: var(--muted); padding: 8px 4px 2px; }
+.chart-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.chart-swatch.chart-weight { background: var(--chart-weight); }
+.chart-swatch.chart-bar { background: #2b3320; }
+.best-so-far { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding: 12px 14px; }
+.best-so-far .best-value { font-size: 20px; font-weight: 800; margin-top: 4px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.tag { font-size: 13px; font-weight: 700; color: var(--accent-ink); background: var(--accent); padding: 5px 10px; border-radius: 99px; white-space: nowrap; }
+.session-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--line); padding: 0 4px; font-variant-numeric: tabular-nums; }
+.session-date { color: var(--muted); font-size: 15px; }
+.session-sets { font-weight: 700; font-size: 17px; text-align: right; }

@@ -8,6 +8,7 @@ export type Route =
   | { name: 'days' }
   | { name: 'day'; dayTypeId: string }
   | { name: 'history' }
+  | { name: 'progress'; exerciseId: string }
   | { name: 'library' };
 
 export function parseRoute(hash: string): Route {
@@ -20,9 +21,12 @@ export function parseRoute(hash: string): Route {
   }
   if (first === 'days') return second ? { name: 'day', dayTypeId: decodeURIComponent(second) } : { name: 'days' };
   if (first === 'history') return { name: 'history' };
+  if (first === 'progress' && second) return { name: 'progress', exerciseId: decodeURIComponent(second) };
   if (first === 'library') return { name: 'library' };
   return { name: 'home' };
 }
+
+export const progressHash = (exerciseId: string) => `#/progress/${encodeURIComponent(exerciseId)}`;
 
 export const dayHash = (dayTypeId: string) => `#/days/${encodeURIComponent(dayTypeId)}`;
 
