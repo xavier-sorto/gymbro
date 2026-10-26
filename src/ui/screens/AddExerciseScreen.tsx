@@ -1,5 +1,6 @@
 import { addWorkoutExercise, getDayType, updateDayType } from '../../store';
 import type { Exercise } from '../../store';
+import { BackLink } from '../components/BackLink';
 import { useActiveWorkout } from '../AppContext';
 import { navigate } from '../router';
 import { useLoad } from '../useLoad';
@@ -29,10 +30,8 @@ export function AddExerciseScreen() {
 
   return (
     <main class="screen">
-      <button type="button" class="link-button" onClick={() => navigate('#/workout')}>
-        ‹ Workout
-      </button>
-      <h1>Add exercise</h1>
+      <BackLink to="#/workout" label="Workout" />
+      <h1 class="h1">Add exercise</h1>
       <ExercisePicker onPick={add} onCreated={addCreated} alsoAddTo={dayType.data} />
     </main>
   );

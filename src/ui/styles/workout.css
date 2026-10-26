@@ -1,0 +1,23 @@
+/* Workout list: exercise cards and their menu; day-type template rows */
+.card { position: relative; display: flex; align-items: center; gap: 4px; background: var(--surface); border-radius: var(--radius); margin: 10px 0; padding: 6px 6px 6px 0; }
+.card-main { flex: 1; display: flex; align-items: center; gap: 14px; text-align: left; background: none; padding: 8px 0 8px 16px; min-height: 64px; min-width: 0; }
+.card-text { display: grid; gap: 2px; min-width: 0; }
+.card-title { font-size: 17px; font-weight: 700; line-height: 1.2; }
+.card-sub { font-size: 14px; }
+.card-done .card-title { color: var(--muted); }
+.check { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; flex: none; }
+.check-done { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.check .icon { width: 18px; height: 18px; }
+.star { color: var(--warm); }
+.card-menu-button { display: grid; place-items: center; background: none; color: var(--muted); padding: 0; }
+.card-menu { position: absolute; right: 8px; top: 64px; z-index: 5; display: grid; min-width: 190px; overflow: hidden; background: var(--surface-2); border-radius: 16px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6); }
+.card-menu button { min-height: 52px; border-radius: 0; background: none; text-align: left; font-weight: 600; }
+.card-menu button:last-child { color: var(--danger); }
+
+.name-input { width: 100%; margin: 6px 0 10px; font-size: 22px; font-weight: 800; }
+.template-row { display: flex; align-items: center; gap: 6px; background: var(--surface); border-radius: 16px; margin: 8px 0; padding: 6px 6px 6px 16px; min-height: 64px; }
+.template-name { flex: 1; font-size: 18px; font-weight: 700; }
+.template-row button { min-width: 44px; width: 44px; min-height: 44px; padding: 0; display: grid; place-items: center; background: var(--surface-2); color: var(--muted); border-radius: 12px; }
+.template-row button[aria-pressed='true'] { color: var(--warm); background: var(--warm-soft); }
+.template-row button[aria-label^='Remove'] { color: var(--danger); }
+.template-row .icon { width: 20px; height: 20px; }

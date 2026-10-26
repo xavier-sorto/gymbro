@@ -1,10 +1,11 @@
 import { useState } from 'preact/hooks';
 import { getDayType, listExercises, updateDayType } from '../../store';
 import type { DayType, Exercise } from '../../store';
+import { BackLink } from '../components/BackLink';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { appendExercise, moveExercise, removeExercise, toggleMainLift, type TemplateLists } from '../dayTypes/templateEdits';
 import { reportError } from '../errors';
-import { navigate } from '../router';
+import { Icon } from '../components/Icon';
 import { useLoad } from '../useLoad';
 import { ExercisePicker } from './ExercisePicker';
 
@@ -47,15 +48,14 @@ export function DayTypeEditScreen({ dayTypeId }: { dayTypeId: string }) {
 
   return (
     <main class="screen">
-      <button type="button" class="link-button" onClick={() => navigate('#/days')}>
-        ‹ Day types
-      </button>
+      <BackLink to="#/days" label="Day types" />
       {template.error && <ErrorNotice message={template.error} onRetry={template.reload} />}
       {saveError && <ErrorNotice message={saveError} />}
       {dayType && (
         <>
           <input
             type="text"
+            class="name-input"
             aria-label="Day type name"
             value={typedName ?? dayType.name}
             onInput={(event) => setTypedName(event.currentTarget.value)}
@@ -67,23 +67,23 @@ export function DayTypeEditScreen({ dayTypeId }: { dayTypeId: string }) {
           {dayType.exerciseIds.length === 0 && <p class="hint">Add your first exercise</p>}
           {dayType.exerciseIds.map((id, index) => (
             <div class="template-row" key={id}>
-              <span>{nameOf(id)}</span>
+              <span class="template-name">{nameOf(id)}</span>
               <button
                 type="button"
                 aria-label={`${nameOf(id)} main lift`}
                 aria-pressed={dayType.mainLiftIds.includes(id)}
                 onClick={() => edit('changing the main lift', (lists) => toggleMainLift(lists, id))}
               >
-                {dayType.mainLiftIds.includes(id) ? '★' : '☆'}
+                <Icon name="star" filled={dayType.mainLiftIds.includes(id)} />
               </button>
               <button type="button" aria-label={`Move ${nameOf(id)} up`} disabled={index === 0} onClick={() => edit('moving an exercise', (lists) => moveExercise(lists, index, -1))}>
-                ↑
+                <Icon name="arrowUp" />
               </button>
               <button type="button" aria-label={`Move ${nameOf(id)} down`} disabled={index === dayType.exerciseIds.length - 1} onClick={() => edit('moving an exercise', (lists) => moveExercise(lists, index, 1))}>
-                ↓
+                <Icon name="arrowDown" />
               </button>
               <button type="button" aria-label={`Remove ${nameOf(id)}`} onClick={() => edit('removing an exercise', (lists) => removeExercise(lists, id))}>
-                ✕
+                <Icon name="close" />
               </button>
             </div>
           ))}
@@ -93,7 +93,8 @@ export function DayTypeEditScreen({ dayTypeId }: { dayTypeId: string }) {
               onCreated={(exercise) => addToTemplate(exercise.id)}
             />
           ) : (
-            <button type="button" class="big-button secondary" onClick={() => setAdding(true)}>
+            <button type="button" class="big-button secondary add-exercise" onClick={() => setAdding(true)}>
+              <Icon name="plus" />
               Add exercise
             </button>
           )}

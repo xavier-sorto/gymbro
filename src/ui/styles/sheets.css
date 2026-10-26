@@ -1,0 +1,17 @@
+/* Bottom sheets and confirm sheets, plus segmented buttons and chart colours for upcoming screens */
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
+.sheet { width: min(var(--column), 100%); max-height: 88vh; overflow: auto; background: var(--surface); border-radius: 26px 26px 0 0; padding: 10px 20px calc(24px + var(--safe-bottom)); }
+.sheet p { color: var(--muted); margin: 6px 0 14px; }
+.sheet .next-set { margin-top: 8px; }
+.grab { width: 40px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 12px; }
+.sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.sheet-header h2 { font-size: 20px; font-weight: 700; }
+
+.segmented { display: flex; gap: 4px; padding: 4px; margin: 12px 0; background: var(--surface); border-radius: var(--radius-small); }
+.segmented button { flex: 1; min-height: 42px; background: none; color: var(--muted); font-weight: 600; font-size: 15px; border-radius: 11px; padding: 0; }
+.segmented button[aria-pressed='true'], .segmented button[aria-selected='true'] { background: var(--surface-2); color: var(--text); }
+.chart-box { background: var(--surface); border-radius: var(--radius); padding: 14px 12px 8px; }
+.chart-box svg { display: block; width: 100%; height: auto; }
+.chart-weight { stroke: var(--chart-weight); color: var(--chart-weight); }
+.chart-reps { stroke: var(--chart-reps); color: var(--chart-reps); }
+.chart-grid { stroke: var(--chart-grid); }

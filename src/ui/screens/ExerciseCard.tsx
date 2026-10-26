@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import type { Exercise, WorkoutExercise, WorkoutSet } from '../../store';
+import { Icon } from '../components/Icon';
 import { pluralSets } from '../format';
 
 interface ExerciseCardProps {
@@ -27,17 +28,21 @@ export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDo
     action();
   };
   return (
-    <div class="card">
+    <div class={`card${done ? ' card-done' : ''}`}>
       <button type="button" class="card-main" onClick={onOpen}>
-        <span class="card-title">
-          {exercise?.name ?? 'Unknown exercise'}
-          {entry.isMainLift && <span aria-label="main lift"> ★</span>}
+        <span class={`check${done ? ' check-done' : ''}`} aria-label={done ? 'done' : undefined}>
+          {done && <Icon name="check" />}
         </span>
-        <span class="card-sub">{setsSummary(sets)}</span>
-        {done && <span class="tick" aria-label="done">✓</span>}
+        <span class="card-text">
+          <span class="card-title">
+            {exercise?.name ?? 'Unknown exercise'}
+            {entry.isMainLift && <span class="star" aria-label="main lift"> ★</span>}
+          </span>
+          <span class="card-sub">{setsSummary(sets)}</span>
+        </span>
       </button>
       <button type="button" class="card-menu-button" aria-label="Exercise menu" onClick={() => setMenuOpen(!menuOpen)}>
-        ⋯
+        <Icon name="more" />
       </button>
       {menuOpen && (
         <div class="card-menu">

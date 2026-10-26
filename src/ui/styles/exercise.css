@@ -1,0 +1,42 @@
+/* Exercise screen: header, last/best/today guide, logged sets, and the set logger */
+.exercise-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.exercise-title .h1 { flex: 1; }
+.star-button { display: grid; place-items: center; width: 48px; padding: 0; background: var(--warm-soft); color: var(--faint); }
+.star-button[aria-pressed='true'] { color: var(--warm); }
+.star-button .icon { width: 24px; }
+.exercise-title + textarea { margin-top: 8px; }
+.guide { display: grid; gap: 8px; margin: 12px 0 4px; padding: 0; }
+.guide p { background: var(--surface); border-radius: 16px; padding: 12px 14px; font-weight: 600; }
+.guide p:last-child:not(.hint) { background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent); }
+.guide .hint { background: none; }
+.logged-sets { margin-top: 10px; }
+.logged-sets button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; margin: 4px 0; padding: 0 14px; text-align: left; font-size: 20px; font-weight: 700; border-radius: var(--radius-small); }
+.set-mark { font-size: 12px; font-weight: 800; padding: 3px 7px; border-radius: 7px; background: var(--warm-soft); color: var(--warm); }
+
+/* The logger is docked above the tab bar on the exercise screen, and in-flow inside the edit sheet. */
+.next-set { display: grid; gap: 6px; }
+.screen > .next-set { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-bar) + var(--safe-bottom)); width: min(var(--column), 100%); z-index: 6; padding: 12px 16px; background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.45); }
+body:has(.rest-bar) .screen > .next-set { bottom: calc(var(--bottom-bar) + var(--safe-bottom) + var(--rest-height)); }
+.next-set .field-error { margin: 0; }
+.next-set-failed { border: 2px solid var(--danger); }
+.stepper-field { margin: 0; padding: 8px; border-radius: 18px; background: var(--bg); text-align: center; }
+.stepper-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.stepper-controls { display: flex; align-items: center; gap: 8px; }
+.stepper-controls input { flex: 1; min-width: 0; min-height: 52px; background: none; text-align: center; font-size: 40px; font-weight: 800; padding: 0; }
+.stepper-controls button { width: 64px; height: 52px; padding: 0; display: grid; place-items: center; background: var(--surface-2); }
+.warmup-toggle, .checkbox-row { display: flex !important; align-items: center; gap: 10px; min-height: 44px; color: var(--muted); font-weight: 700; }
+.warmup-toggle input, .checkbox-row input { min-height: 22px; width: 22px; accent-color: var(--accent); }
+.next-set .primary-button { margin: 4px 0 0; min-height: 60px; font-size: 20px; border-radius: 20px; }
+
+/* Rest timer */
+.rest-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-bar) + var(--safe-bottom)); width: min(var(--column), 100%); min-height: var(--rest-height); z-index: 9; display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 18px; background: var(--rest-surface); border-top: 1px solid var(--rest-line); box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5); }
+.rest-bar-clock { flex: 1; display: grid; }
+.rest-bar-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+.rest-bar-time { font-size: 44px; font-weight: 800; line-height: 1.05; }
+.rest-bar .progress { height: 5px; margin: 8px 0 0; background: rgba(255, 255, 255, 0.08); }
+.rest-bar-actions { display: grid; gap: 8px; }
+.rest-bar-actions button { min-height: 44px; min-width: 84px; font-weight: 700; background: rgba(255, 255, 255, 0.08); }
+.rest-bar-actions .rest-add { background: var(--accent); color: var(--accent-ink); }
+.rest-bar-done { animation: flash 0.5s infinite alternate; }
+@keyframes flash { from { background: var(--rest-surface); } to { background: #34441a; } }
+.screen:has(> .next-set) { padding-bottom: calc(var(--bottom-bar) + var(--safe-bottom) + 360px); }

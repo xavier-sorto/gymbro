@@ -47,3 +47,11 @@ describe('rest timer', () => {
     expect((await screen.findByRole('timer')).textContent).toMatch(/1:(30|29|28)/);
   });
 });
+
+describe('rest timer look', () => {
+  it('shows a remaining-time bar that starts full', async () => {
+    await saveOneSet();
+    const bar = screen.getByRole('progressbar', { name: 'Rest remaining' });
+    expect(Number(bar.getAttribute('aria-valuenow'))).toBeGreaterThanOrEqual(99);
+  });
+});

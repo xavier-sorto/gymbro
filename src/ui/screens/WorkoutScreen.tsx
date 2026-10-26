@@ -4,9 +4,12 @@ import type { Exercise, WorkoutExercise, WorkoutSet } from '../../store';
 import { useActiveWorkout } from '../AppContext';
 import { ConfirmSheet } from '../components/ConfirmSheet';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { Icon } from '../components/Icon';
+import { ProgressBar } from '../components/ProgressBar';
 import { listWorkoutEntries } from '../data/workoutData';
 import { reportError } from '../errors';
 import { formatDuration } from '../format';
+import { fractionOf } from '../progress';
 import { exerciseHash, navigate } from '../router';
 import { useNow } from '../useNow';
 import { useLoad } from '../useLoad';
@@ -63,6 +66,7 @@ export function WorkoutScreen() {
   };
 
   const rows = view.data?.rows ?? [];
+  const doneCount = rows.filter((row) => row.sets.some((set) => !set.isWarmup)).length;
   const removingSetCount = rows.find((row) => row.entry.id === removing?.id)?.sets.length ?? 0;
 
   const askRemove = (entry: WorkoutExercise, setCount: number) => {
@@ -72,9 +76,11 @@ export function WorkoutScreen() {
 
   return (
     <main class="screen">
-      <h1>
-        {view.data?.title ?? 'Workout'} <span class="elapsed">{formatDuration(now - workout.startedAt)}</span>
-      </h1>
+      <header class="top">
+        <h1 class="h1">{view.data?.title ?? 'Workout'}</h1>
+        <span class="pill elapsed">{formatDuration(now - workout.startedAt)}</span>
+      </header>
+      {rows.length > 0 && <ProgressBar label="Exercises done" fraction={fractionOf(doneCount, rows.length)} />}
       {view.error && <ErrorNotice message={view.error} onRetry={view.reload} />}
       {actionError && <ErrorNotice message={actionError} />}
       {view.data && rows.length === 0 && <p class="hint">Add your first exercise</p>}
@@ -90,7 +96,8 @@ export function WorkoutScreen() {
           onRemove={() => askRemove(entry, sets.length)}
         />
       ))}
-      <button type="button" class="big-button secondary" onClick={() => navigate('#/workout/add')}>
+      <button type="button" class="big-button secondary add-exercise" onClick={() => navigate('#/workout/add')}>
+        <Icon name="plus" />
         Add exercise
       </button>
       <FinishWorkoutButton variant="big" />

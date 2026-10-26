@@ -1,0 +1,31 @@
+/* Design tokens: colours, sizes. System fonts and inline SVG only (works offline, costs nothing). */
+:root {
+  color-scheme: dark;
+  --bg: #0b0c0e;
+  --surface: #16181c;
+  --surface-2: #1f2228;
+  --line: #2a2e35;
+  --text: #f4f5f7;
+  --muted: #9aa0aa;
+  --faint: #6b717b;
+  --accent: #c5f04a;
+  --accent-ink: #0b0c0e;
+  --accent-soft: rgba(197, 240, 74, 0.12);
+  --accent-line: rgba(197, 240, 74, 0.3);
+  --warm: #ffb547;
+  --warm-soft: rgba(255, 181, 71, 0.14);
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.14);
+  --rest-surface: #1b2112;
+  --rest-line: #3a4a1e;
+  /* Chart colours, for the progress charts that come later. */
+  --chart-weight: var(--accent);
+  --chart-reps: var(--warm);
+  --chart-grid: var(--line);
+  --radius: 18px;
+  --radius-small: 14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --bottom-bar: 64px;
+  --rest-height: 104px;
+  --column: 430px;
+}

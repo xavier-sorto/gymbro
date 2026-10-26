@@ -1,0 +1,16 @@
+/* Home: day grid and the resume card */
+.days { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.day { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 112px; padding: 16px; border-radius: var(--radius); background: var(--surface); text-align: left; overflow: hidden; }
+.day .name { font-size: 21px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
+.day .glyph { position: absolute; top: 16px; left: 16px; color: var(--accent); }
+.day .glyph .icon { width: 30px; height: 30px; }
+.day .go { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; }
+.day .go .icon { width: 18px; height: 18px; }
+.day.wide { grid-column: span 2; min-height: 84px; }
+.day.empty { background: transparent; border: 1.5px dashed var(--line); color: var(--muted); justify-content: center; align-items: center; flex-direction: row; gap: 8px; min-height: 64px; }
+.day.empty .name { font-size: 17px; font-weight: 600; }
+.link-row { margin-top: 14px; }
+.resume { border-radius: 22px; padding: 20px; margin-top: 14px; background: linear-gradient(160deg, #20261a 0%, var(--surface) 60%); border: 1px solid #33401f; }
+.resume-name { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 14px; }
+.resume .primary-button { min-height: 68px; font-size: 20px; border-radius: 20px; margin: 0 0 6px; }
+.resume .link-button { width: 100%; min-height: 52px; color: var(--danger); }

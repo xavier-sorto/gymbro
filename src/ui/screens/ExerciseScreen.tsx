@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { WorkoutSet } from '../../store';
+import { BackLink } from '../components/BackLink';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { EditSetSheet } from '../exercise/EditSetSheet';
 import { ExerciseHeader } from '../exercise/ExerciseHeader';
@@ -20,9 +21,7 @@ export function ExerciseScreen({ workoutExerciseId }: { workoutExerciseId: strin
   const { data, draft } = log;
   return (
     <main class="screen">
-      <button type="button" class="link-button" onClick={() => navigate('#/workout')}>
-        ‹ Workout
-      </button>
+      <BackLink to="#/workout" label="Workout" />
       {log.error && <ErrorNotice message={log.error} onRetry={log.reload} />}
       {data && draft && (
         <>

@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { updateWorkoutExercise } from '../../store';
 import type { Exercise, WorkoutExercise } from '../../store';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { Icon } from '../components/Icon';
 import { reportError } from '../errors';
 
 interface ExerciseHeaderProps {
@@ -27,7 +28,7 @@ export function ExerciseHeader({ entry, exercise, onChanged }: ExerciseHeaderPro
   return (
     <header>
       <div class="exercise-title">
-        <h1>{exercise.name}</h1>
+        <h1 class="h1">{exercise.name}</h1>
         <button
           type="button"
           class="star-button"
@@ -35,7 +36,7 @@ export function ExerciseHeader({ entry, exercise, onChanged }: ExerciseHeaderPro
           aria-label="Main lift"
           onClick={() => update('toggling main lift', { isMainLift: !entry.isMainLift })}
         >
-          {entry.isMainLift ? '★' : '☆'}
+          <Icon name="star" filled={entry.isMainLift} />
         </button>
       </div>
       <textarea

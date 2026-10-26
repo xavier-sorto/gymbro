@@ -2,6 +2,7 @@ import { listDayTypes, startWorkout } from '../../store';
 import { useState } from 'preact/hooks';
 import { useApp } from '../AppContext';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { Icon } from '../components/Icon';
 import { reportError } from '../errors';
 import { formatTime } from '../format';
 import { navigate } from '../router';
@@ -27,12 +28,23 @@ export function HomeScreen() {
 
   return (
     <main class="screen">
-      <h1>GymBro</h1>
-      {notice && <p class="notice">{notice}</p>}
+      <header class="top">
+        <h1 class="wordmark">
+          Gym<b>Bro</b>
+        </h1>
+      </header>
+      {notice && (
+        <p class="notice toast">
+          <Icon name="check" />
+          {notice}
+        </p>
+      )}
       {startError && <ErrorNotice message={startError} />}
       {dayTypes.error && <ErrorNotice message={dayTypes.error} onRetry={dayTypes.reload} />}
       {active ? (
-        <section>
+        <section class="resume">
+          <p class="eyebrow">In progress</p>
+          <p class="resume-name">{activeDayName}</p>
           <button type="button" class="primary-button" onClick={() => navigate('#/workout')}>
             Resume {activeDayName} (started {formatTime(active.startedAt)})
           </button>
@@ -40,19 +52,27 @@ export function HomeScreen() {
         </section>
       ) : (
         <section>
-          <h2>Start workout</h2>
-          {dayTypes.data?.map((dayType) => (
-            <button key={dayType.id} type="button" class="big-button" onClick={() => start(dayType.id)}>
-              {dayType.name}
+          <h2 class="section-title">Start workout</h2>
+          <div class="days">
+            {dayTypes.data?.map((dayType) => (
+              <button key={dayType.id} type="button" class="day" onClick={() => start(dayType.id)}>
+                <span class="glyph"><Icon name="dumbbell" /></span>
+                <span class="go"><Icon name="chevronRight" /></span>
+                <span class="name">{dayType.name}</span>
+              </button>
+            ))}
+            <button type="button" class="day empty wide" onClick={() => start(null)}>
+              <Icon name="plus" />
+              <span class="name">Empty workout</span>
             </button>
-          ))}
-          <button type="button" class="big-button secondary" onClick={() => start(null)}>
-            Empty workout
-          </button>
-          <a class="link-button" href="#/days">
-            Edit day types
-          </a>
+          </div>
         </section>
+      )}
+      {!active && (
+        <a class="link-row" href="#/days">
+          Edit day types
+          <Icon name="chevronRight" />
+        </a>
       )}
     </main>
   );

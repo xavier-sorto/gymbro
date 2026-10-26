@@ -1,3 +1,5 @@
+import { Icon } from './Icon';
+
 interface StepperFieldProps {
   label: string;
   /** The field's text; empty while the owner is typing. */
@@ -17,10 +19,10 @@ export function stepValue(value: string, delta: number): string {
 export function StepperField({ label, value, step, decimal = false, error, onChange }: StepperFieldProps) {
   return (
     <div class="stepper-field">
-      <label>{label}</label>
+      <label class="stepper-label">{label}</label>
       <div class="stepper-controls">
         <button type="button" aria-label={`${label} minus`} onClick={() => onChange(stepValue(value, -step))}>
-          −
+          <Icon name="minus" />
         </button>
         <input
           type="text"
@@ -30,7 +32,7 @@ export function StepperField({ label, value, step, decimal = false, error, onCha
           onInput={(event) => onChange((event.currentTarget as HTMLInputElement).value)}
         />
         <button type="button" aria-label={`${label} plus`} onClick={() => onChange(stepValue(value, step))}>
-          +
+          <Icon name="plus" />
         </button>
       </div>
       {error && <p class="field-error">{error}</p>}

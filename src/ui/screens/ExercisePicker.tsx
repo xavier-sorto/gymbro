@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { listExercises } from '../../store';
 import type { DayType, Exercise } from '../../store';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { Icon } from '../components/Icon';
 import { listRecentExerciseIds } from '../data/workoutData';
 import { reportError } from '../errors';
 import { useLoad } from '../useLoad';
@@ -47,28 +48,32 @@ export function ExercisePicker({ onPick, onCreated, alsoAddTo }: ExercisePickerP
 
   return (
     <>
-      <input
-        type="search"
-        aria-label="Search exercises"
-        placeholder="Search exercises"
-        autofocus
-        value={query}
-        onInput={(event) => setQuery(event.currentTarget.value)}
-      />
+      <div class="search">
+        <Icon name="search" />
+        <input
+          type="search"
+          aria-label="Search exercises"
+          placeholder="Search exercises"
+          autofocus
+          value={query}
+          onInput={(event) => setQuery(event.currentTarget.value)}
+        />
+      </div>
       {choices.error && <ErrorNotice message={choices.error} onRetry={choices.reload} />}
       {pickError && <ErrorNotice message={pickError} />}
-      {!typed && <h2>Recent</h2>}
+      {!typed && <h2 class="section-label">Recent</h2>}
       <ul class="exercise-choices">
         {shown.map((exercise) => (
           <li key={exercise.id}>
-            <button type="button" onClick={() => pick(exercise.id)}>
+            <button type="button" class="list-row" onClick={() => pick(exercise.id)}>
               {exercise.name}
+              <Icon name="plus" />
             </button>
           </li>
         ))}
       </ul>
       {typed && !creating && (
-        <button type="button" class="big-button secondary" onClick={() => setCreating(true)}>
+        <button type="button" class="big-button secondary create-prompt" onClick={() => setCreating(true)}>
           Create "{typed}"
         </button>
       )}
