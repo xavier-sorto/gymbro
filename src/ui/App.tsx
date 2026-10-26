@@ -11,6 +11,8 @@ import { DayTypeEditScreen } from './screens/DayTypeEditScreen';
 import { DayTypesScreen } from './screens/DayTypesScreen';
 import { ComingSoonScreen } from './screens/ComingSoonScreen';
 import { ExerciseScreen } from './screens/ExerciseScreen';
+import { HistoryScreen } from './history/HistoryScreen';
+import { WorkoutDetailScreen } from './history/WorkoutDetailScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { LoadingScreen, StartupErrorScreen } from './screens/StartupScreen';
 import { WorkoutScreen } from './screens/WorkoutScreen';
@@ -31,7 +33,9 @@ function ScreenFor({ route }: { route: Route }) {
     case 'day':
       return <DayTypeEditScreen key={route.dayTypeId} dayTypeId={route.dayTypeId} />;
     case 'history':
-      return <ComingSoonScreen title="History" />;
+      return <HistoryScreen />;
+    case 'historyDetail':
+      return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'library':
       return <ComingSoonScreen title="Library" />;
     default:
