@@ -3,6 +3,8 @@ import { listExercises } from '../../store';
 import type { DayType, Exercise } from '../../store';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
+import { SearchField } from '../components/SearchField';
+import { filterExercisesByName } from '../exercise/filterExercises';
 import { listRecentExerciseIds } from '../data/workoutData';
 import { reportError } from '../errors';
 import { useLoad } from '../useLoad';
@@ -33,9 +35,8 @@ export function ExercisePicker({ onPick, onCreated, alsoAddTo }: ExercisePickerP
   const [pickError, setPickError] = useState<string | null>(null);
 
   const typed = query.trim();
-  const lowered = typed.toLowerCase();
   const shown = typed
-    ? (choices.data?.exercises ?? []).filter((e) => e.name.toLowerCase().includes(lowered))
+    ? filterExercisesByName(choices.data?.exercises ?? [], typed)
     : (choices.data?.recent ?? []);
 
   const pick = async (exerciseId: string) => {
@@ -48,17 +49,7 @@ export function ExercisePicker({ onPick, onCreated, alsoAddTo }: ExercisePickerP
 
   return (
     <>
-      <div class="search">
-        <Icon name="search" />
-        <input
-          type="search"
-          aria-label="Search exercises"
-          placeholder="Search exercises"
-          autofocus
-          value={query}
-          onInput={(event) => setQuery(event.currentTarget.value)}
-        />
-      </div>
+      <SearchField value={query} onChange={setQuery} autofocus />
       {choices.error && <ErrorNotice message={choices.error} onRetry={choices.reload} />}
       {pickError && <ErrorNotice message={pickError} />}
       {!typed && <h2 class="section-label">Recent</h2>}
