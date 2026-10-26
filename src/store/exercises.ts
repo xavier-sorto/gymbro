@@ -27,13 +27,26 @@ export function getExercise(id: string): Promise<Exercise> {
   return requireRecord('exercises', id);
 }
 
+/** Distance of a stored name key from the typed key, or null when it is not similar. */
+function similarityDistance(typed: string, nameKey: string): number | null {
+  if (nameKey === typed) return 0;
+  if (typed.length < SIMILAR_MIN_KEY_LENGTH) return null;
+  if (nameKey.includes(typed)) return 0;
+  const distance = Math.min(
+    editDistance(typed, nameKey),
+    editDistance(typed, nameKey.slice(0, typed.length)),
+  );
+  return distance <= SIMILAR_MAX_DISTANCE ? distance : null;
+}
+
 export async function findSimilarExercises(name: string): Promise<Exercise[]> {
-  const key = toNameKey(name);
-  const compareDistance = key.length >= SIMILAR_MIN_KEY_LENGTH;
-  const scored = (await listExercises())
-    .map((exercise) => ({ exercise, distance: editDistance(key, exercise.nameKey) }))
-    .filter(({ distance }) => distance === 0 || (compareDistance && distance <= SIMILAR_MAX_DISTANCE));
-  scored.sort((a, b) => a.distance - b.distance);
+  const typed = toNameKey(name);
+  const scored: { exercise: Exercise; distance: number }[] = [];
+  for (const exercise of await listExercises()) {
+    const distance = similarityDistance(typed, exercise.nameKey);
+    if (distance !== null) scored.push({ exercise, distance });
+  }
+  scored.sort((a, b) => a.distance - b.distance || a.exercise.name.localeCompare(b.exercise.name));
   return scored.slice(0, MAX_SIMILAR_RESULTS).map(({ exercise }) => exercise);
 }
 
