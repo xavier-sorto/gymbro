@@ -3,8 +3,8 @@ import { validatedBodyweight } from './bodyweights';
 import { validateExerciseFields } from './exerciseRules';
 import { validateSetValues } from './setRules';
 import type { BackupData } from './backupFormat';
-import { DATA_TABLE_NAMES, type DataTableName, type Exercise, type ExerciseKind } from './types';
-import { requireIntegerInRange, requireTrimmedText } from './validatePrimitives';
+import { DATA_TABLE_NAMES, MUSCLES, type DataTableName, type Exercise, type ExerciseKind } from './types';
+import { requireIntegerInRange, requireMuscleList, requireTrimmedText } from './validatePrimitives';
 
 type Raw = Record<string, unknown>;
 
@@ -39,6 +39,10 @@ function checkExercise(record: Raw): void {
   requireBoolean('seed', record.seed);
   if (record.notes !== undefined) requireTrimmedText('notes', record.notes, 0, 500);
   for (const flag of ['favorite', 'archived']) if (record[flag] !== undefined) requireBoolean(flag, record[flag]);
+  if (record.primaryMuscle !== undefined && record.primaryMuscle !== null && !MUSCLES.includes(record.primaryMuscle as never)) {
+    throw new ValidationError('primaryMuscle', 'must be a muscle or none');
+  }
+  if (record.secondaryMuscles !== undefined) requireMuscleList('secondaryMuscles', record.secondaryMuscles, 4, record.primaryMuscle ?? null);
 }
 
 function checkDayType(record: Raw): void {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { deleteWorkout } from '../../store';
 import { ConfirmSheet } from '../components/ConfirmSheet';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { Icon } from '../components/Icon';
 import { SearchField } from '../components/SearchField';
 import { reportError } from '../errors';
 import { useLoad } from '../useLoad';
@@ -90,6 +91,12 @@ export function HistoryScreen() {
             <div class="detail-stat-value">{stats.data.streakWeeks} {stats.data.streakWeeks === 1 ? 'wk' : 'wks'}</div>
           </div>
         </div>
+      )}
+      {rows.length > 0 && (
+        <a class="link-row" href="#/volume">
+          <span>Weekly volume by muscle</span>
+          <Icon name="chevronRight" />
+        </a>
       )}
       {rows.length > 0 && (
         <div class="history-filters">

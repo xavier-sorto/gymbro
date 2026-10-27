@@ -1,4 +1,5 @@
-import type { Exercise, ExerciseCategory, ExerciseKind, SetStyle } from '../../store';
+import { musclesOf } from '../../engine';
+import type { Exercise, ExerciseCategory, ExerciseKind, Muscle, SetStyle } from '../../store';
 import { DEFAULT_REP_RANGE } from '../../store/exerciseRules';
 
 /** What the edit form holds while the owner types: numbers stay text until Save. */
@@ -15,7 +16,12 @@ export interface ExerciseDraft {
   notes: string;
   favorite: boolean;
   archived: boolean;
+  primaryMuscle: Muscle | null;
+  secondaryMuscles: Muscle[];
 }
+
+/** Most muscles an exercise can list as secondary. */
+export const MAX_SECONDARY_MUSCLES = 4;
 
 export function toDraft(exercise: Exercise): ExerciseDraft {
   return {
@@ -31,7 +37,27 @@ export function toDraft(exercise: Exercise): ExerciseDraft {
     notes: exercise.notes ?? '',
     favorite: exercise.favorite ?? false,
     archived: exercise.archived ?? false,
+    primaryMuscle: musclesOf(exercise).primary,
+    secondaryMuscles: musclesOf(exercise).secondary,
   };
+}
+
+/** Choosing the main muscle takes it out of the secondary list; choosing none empties that list. */
+export function withPrimaryMuscle(draft: ExerciseDraft, primaryMuscle: Muscle | null): ExerciseDraft {
+  return {
+    ...draft,
+    primaryMuscle,
+    secondaryMuscles: primaryMuscle === null ? [] : draft.secondaryMuscles.filter((muscle) => muscle !== primaryMuscle),
+  };
+}
+
+/** Adds or removes a secondary muscle; adding past the limit does nothing. */
+export function withSecondaryToggled(draft: ExerciseDraft, muscle: Muscle): ExerciseDraft {
+  if (draft.secondaryMuscles.includes(muscle)) {
+    return { ...draft, secondaryMuscles: draft.secondaryMuscles.filter((other) => other !== muscle) };
+  }
+  if (draft.secondaryMuscles.length >= MAX_SECONDARY_MUSCLES) return draft;
+  return { ...draft, secondaryMuscles: [...draft.secondaryMuscles, muscle] };
 }
 
 /** Changing the type moves the rep range to the new type's default, but only if it was still the old default. */
@@ -58,5 +84,7 @@ export function toPatch(draft: ExerciseDraft) {
     notes: draft.notes,
     favorite: draft.favorite,
     archived: draft.archived,
+    primaryMuscle: draft.primaryMuscle,
+    secondaryMuscles: draft.secondaryMuscles,
   };
 }

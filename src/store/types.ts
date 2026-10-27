@@ -2,6 +2,22 @@ export type ExerciseKind = 'weighted' | 'bodyweight' | 'timed';
 export type ExerciseCategory = 'heavy' | 'compound' | 'isolation';
 export type SetStyle = 'straight' | 'ramping';
 
+export const MUSCLES = [
+  'chest',
+  'back',
+  'shoulders',
+  'rearDelts',
+  'biceps',
+  'triceps',
+  'forearms',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'calves',
+  'abs',
+] as const;
+export type Muscle = (typeof MUSCLES)[number];
+
 export interface StoredRecord {
   id: string;
   updatedAt: number;
@@ -26,6 +42,10 @@ export interface Exercise extends StoredRecord {
   favorite?: boolean;
   /** Hidden from the Library list and pickers, but still named on past workouts. */
   archived?: boolean;
+  /** Absent until set (the starter exercises have defaults); null means the owner chose none. */
+  primaryMuscle?: Muscle | null;
+  /** Muscles worked indirectly; each set counts half toward them. */
+  secondaryMuscles?: Muscle[];
 }
 
 export interface DayType extends StoredRecord {

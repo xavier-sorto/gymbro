@@ -1,0 +1,14 @@
+/* Weekly volume by muscle */
+.volume-range { margin: 0 0 8px; }
+.volume-row { margin: 10px 0; padding: 12px 14px; border-radius: var(--radius); background: var(--surface); --zone: var(--faint); }
+.volume-row.zone-building { --zone: var(--warm); }
+.volume-row.zone-target { --zone: var(--accent); }
+.volume-row.zone-above { --zone: var(--danger); }
+.volume-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.volume-name { font-size: 17px; font-weight: 700; }
+.volume-sets { font-size: 20px; font-weight: 800; color: var(--zone); }
+.volume-bar { position: relative; height: 10px; margin: 8px 0 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.volume-band { position: absolute; top: 0; bottom: 0; background: var(--accent-soft); }
+.volume-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 99px; background: var(--zone); max-width: 100%; }
+.volume-foot { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--muted); }
+.volume-note { text-align: left; margin-top: 14px; font-size: 14px; }

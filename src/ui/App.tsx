@@ -18,6 +18,7 @@ import { ExerciseEditScreen } from './screens/ExerciseEditScreen';
 import { ExerciseScreen } from './screens/ExerciseScreen';
 import { HistoryScreen } from './history/HistoryScreen';
 import { WorkoutDetailScreen } from './history/WorkoutDetailScreen';
+import { VolumeScreen } from './volume/VolumeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
 import { LoadingScreen, StartupErrorScreen } from './screens/StartupScreen';
@@ -44,6 +45,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'progress':
       return <ProgressChartScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
+    case 'volume':
+      return <VolumeScreen />;
     case 'bodyweight':
       return <BodyweightScreen />;
     case 'plates':

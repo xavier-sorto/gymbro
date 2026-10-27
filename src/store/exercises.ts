@@ -9,8 +9,8 @@ import {
 import { newId } from './ids';
 import { requireRecord } from './lookups';
 import { editDistance, toNameKey } from './text';
-import { requireTrimmedText } from './validatePrimitives';
-import type { Exercise } from './types';
+import { requireMuscleList, requireTrimmedText } from './validatePrimitives';
+import { MUSCLES, type Exercise, type Muscle } from './types';
 import { writeTransaction } from './write';
 
 const MAX_SIMILAR_RESULTS = 5;
@@ -75,10 +75,21 @@ export interface ExerciseExtras {
   notes?: string;
   favorite?: boolean;
   archived?: boolean;
+  /** null clears it: the exercise then counts toward no muscle. */
+  primaryMuscle?: Muscle | null;
+  secondaryMuscles?: Muscle[];
 }
 
-function validatedExtras(patch: ExerciseExtras): ExerciseExtras {
+function validatedExtras(patch: ExerciseExtras, existing: Exercise): ExerciseExtras {
   const extras: ExerciseExtras = {};
+  if (patch.primaryMuscle !== undefined) {
+    if (patch.primaryMuscle !== null && !MUSCLES.includes(patch.primaryMuscle)) throw new ValidationError('primaryMuscle', 'must be a muscle or none');
+    extras.primaryMuscle = patch.primaryMuscle;
+  }
+  if (patch.secondaryMuscles !== undefined) {
+    const primary = patch.primaryMuscle !== undefined ? patch.primaryMuscle : (existing.primaryMuscle ?? null);
+    extras.secondaryMuscles = requireMuscleList('secondaryMuscles', patch.secondaryMuscles, 4, primary);
+  }
   if (patch.notes !== undefined) extras.notes = requireTrimmedText('notes', patch.notes, 0, 500);
   for (const flag of ['favorite', 'archived'] as const) {
     if (patch[flag] === undefined) continue;
@@ -93,7 +104,7 @@ export async function updateExercise(id: string, patch: Partial<ExerciseFields> 
     const existing = await requireRecord('exercises', id);
     const fields = validateExerciseFields({ ...existing, ...patch });
     if (fields.nameKey !== existing.nameKey) await assertNameFree(fields.nameKey, id);
-    return context.save('exercises', { ...existing, ...fields, ...validatedExtras(patch) });
+    return context.save('exercises', { ...existing, ...fields, ...validatedExtras(patch, existing) });
   });
 }
 

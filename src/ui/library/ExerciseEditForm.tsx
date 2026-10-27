@@ -6,10 +6,11 @@ import { ConfirmSheet } from '../components/ConfirmSheet';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { SegmentedField } from '../components/SegmentedField';
 import { StepperField } from '../components/StepperField';
+import { MUSCLES, MUSCLE_LABELS } from '../../engine';
 import { CATEGORY_OPTIONS, KIND_OPTIONS, SET_STYLE_OPTIONS, kindLabel } from '../exercise/exerciseOptions';
 import { reportError } from '../errors';
 import { navigate } from '../router';
-import { toDraft, toPatch, withCategory, type ExerciseDraft } from './exerciseDraft';
+import { MAX_SECONDARY_MUSCLES, toDraft, toPatch, withCategory, withPrimaryMuscle, withSecondaryToggled, type ExerciseDraft } from './exerciseDraft';
 import { MergeIntoSheet } from './MergeIntoSheet';
 
 type Dialog = 'kind-change' | 'delete' | 'merge' | null;
@@ -99,6 +100,45 @@ export function ExerciseEditForm({ exercise, setCount }: ExerciseEditFormProps) 
           <StepperField label="Warm-up sets" value={draft.warmupSets} step={1} onChange={(warmupSets) => change({ warmupSets })} />
           <StepperField label="Rest (seconds)" value={draft.restSeconds} step={15} onChange={(restSeconds) => change({ restSeconds })} />
         </div>
+        <label>
+          Main muscle
+          <select
+            value={draft.primaryMuscle ?? ''}
+            onChange={(event) => {
+              const chosen = event.currentTarget.value;
+              setDraft((current) => withPrimaryMuscle(current, chosen === '' ? null : (chosen as (typeof MUSCLES)[number])));
+              setNameClash(null);
+            }}
+          >
+            <option value="">Not set</option>
+            {MUSCLES.map((muscle) => (
+              <option key={muscle} value={muscle}>
+                {MUSCLE_LABELS[muscle]}
+              </option>
+            ))}
+          </select>
+        </label>
+        {draft.primaryMuscle && (
+          <div class="segmented-field">
+            <span class="field-caption">Also works (counts half, up to {MAX_SECONDARY_MUSCLES})</span>
+            <div class="muscle-chips">
+              {MUSCLES.filter((muscle) => muscle !== draft.primaryMuscle).map((muscle) => {
+                const on = draft.secondaryMuscles.includes(muscle);
+                return (
+                  <button
+                    key={muscle}
+                    type="button"
+                    aria-pressed={on}
+                    disabled={!on && draft.secondaryMuscles.length >= MAX_SECONDARY_MUSCLES}
+                    onClick={() => setDraft((current) => withSecondaryToggled(current, muscle))}
+                  >
+                    {MUSCLE_LABELS[muscle]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <label>
           Form cues
           <textarea
