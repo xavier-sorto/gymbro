@@ -7,11 +7,11 @@ import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { EditSetSheet } from '../exercise/EditSetSheet';
 import { reportError } from '../errors';
-import { formatDuration, formatTime, formatWeekdayDate, pluralSets } from '../format';
+import { formatDuration, formatTime, formatWeekdayDate } from '../format';
 import { navigate } from '../router';
 import { useLoad } from '../useLoad';
 import { DetailExerciseBlock } from './DetailExerciseBlock';
-import { countWorking, loadWorkoutDetail, MISSING_WORKOUT } from './historyData';
+import { countWorking, deleteWorkoutMessage, loadWorkoutDetail, MISSING_WORKOUT } from './historyData';
 
 const HISTORY_HASH = '#/history';
 
@@ -101,7 +101,7 @@ export function WorkoutDetailScreen({ workoutId }: { workoutId: string }) {
       {confirmingDelete && data && (
         <ConfirmSheet
           title="Delete this workout?"
-          message={`${data.title}, ${formatWeekdayDate(data.workout.startedAt)}: all ${pluralSets(allSets.length)} will be deleted. This can't be undone.`}
+          message={deleteWorkoutMessage(data.title, data.workout.startedAt, allSets.length)}
           confirmLabel="Delete workout"
           destructive
           onCancel={() => setConfirmingDelete(false)}

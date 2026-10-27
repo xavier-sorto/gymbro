@@ -2,6 +2,7 @@ import { getDb } from '../../store/db';
 import { listDayTypes, listExercises, listSets, listWorkouts } from '../../store';
 import type { Exercise, Workout, WorkoutExercise, WorkoutSet } from '../../store';
 import { listWorkoutEntries } from '../data/workoutData';
+import { formatWeekdayDate, pluralSets } from '../format';
 
 export const HISTORY_PAGE_SIZE = 50;
 export const UNNAMED_WORKOUT = 'Workout';
@@ -10,6 +11,8 @@ export interface HistoryRowData {
   workout: Workout;
   title: string;
   workingSets: number;
+  /** Every logged set including warm-ups: what deleting the workout removes. */
+  totalSets: number;
   exerciseNames: string[];
 }
 
@@ -29,6 +32,9 @@ export interface WorkoutDetail {
   title: string;
   exercises: DetailExercise[];
 }
+
+export const deleteWorkoutMessage = (title: string, startedAt: number, totalSets: number) =>
+  `${title}, ${formatWeekdayDate(startedAt)}: all ${pluralSets(totalSets)} will be deleted. This can't be undone.`;
 
 export const countWorking = (sets: WorkoutSet[]) => sets.filter((set) => !set.isWarmup).length;
 
@@ -58,7 +64,8 @@ export async function loadHistoryPage(before?: number): Promise<HistoryPage> {
         workout,
         title: dayTypes.find((dayType) => dayType.id === workout.dayTypeId)?.name ?? UNNAMED_WORKOUT,
         workingSets: done.reduce((total, { sets }) => total + countWorking(sets), 0),
-        exerciseNames: done.slice(0, 3).map(({ exercise }) => exercise?.name ?? 'Unknown exercise'),
+        totalSets: done.reduce((total, { sets }) => total + sets.length, 0),
+        exerciseNames: done.map(({ exercise }) => exercise?.name ?? 'Unknown exercise'),
       };
     }),
   );

@@ -56,6 +56,61 @@ describe('history list', () => {
   });
 });
 
+describe('history filters and delete from the list', () => {
+  async function finishedPull(daysAgo: number) {
+    const workout = await startWorkout('seed-day-pull');
+    await finishWorkout(workout.id);
+    const startedAt = Date.now() - daysAgo * DAY;
+    await getDb().workouts.update(workout.id, { startedAt, finishedAt: startedAt + 45 * 60000 });
+    return workout;
+  }
+
+  it('filters by day type', async () => {
+    await openStore();
+    await finishedPush(1);
+    await finishedPush(2);
+    await finishedPull(3);
+    window.location.hash = '#/history';
+    renderApp();
+    await waitFor(() => expect(document.querySelectorAll('.history-row')).toHaveLength(3));
+    fireEvent.change(screen.getByLabelText('Day type'), { target: { value: 'Pull' } });
+    await waitFor(() => expect(document.querySelectorAll('.history-row')).toHaveLength(1));
+    expect(document.querySelector('.history-title')?.textContent).toBe('Pull');
+  });
+
+  it('searches every exercise of a workout, not only the first three shown', async () => {
+    await openStore();
+    await finishedPush(1, [SEED_BENCH, OVERHEAD_PRESS, 'seed-ex-lateral-raise', 'seed-ex-triceps-pushdown']);
+    await finishedPush(2, [SEED_BENCH]);
+    window.location.hash = '#/history';
+    renderApp();
+    await waitFor(() => expect(document.querySelectorAll('.history-row')).toHaveLength(2));
+    fireEvent.input(screen.getByLabelText('Search exercises'), { target: { value: 'pushdown' } });
+    await waitFor(() => expect(document.querySelectorAll('.history-row')).toHaveLength(1));
+    fireEvent.input(screen.getByLabelText('Search exercises'), { target: { value: 'squat' } });
+    expect(await screen.findByText('No workouts match.')).toBeTruthy();
+  });
+
+  it('deletes a workout from the list after confirming, and leaves a plain link row when not editing', async () => {
+    await openStore();
+    const gone = await finishedPush(1);
+    const kept = await finishedPush(2);
+    window.location.hash = '#/history';
+    renderApp();
+    await waitFor(() => expect(document.querySelectorAll('a.history-row')).toHaveLength(2));
+    expect(screen.queryByRole('button', { name: /Delete Push workout/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete Push workout' })[0]!);
+    const dialog = await screen.findByRole('dialog', { name: 'Delete this workout?' });
+    expect(dialog.textContent).toMatch(/all 1 set will be deleted/);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Delete workout' }));
+    await waitFor(() => expect(document.querySelectorAll('.history-row')).toHaveLength(1));
+    const remaining = (await listWorkouts()).map((w) => w.id);
+    expect(remaining).toContain(kept.id);
+    expect(remaining).not.toContain(gone.id);
+  });
+});
+
 describe('workout detail', () => {
   async function openDetail(withWarmup = false) {
     await openStore();
