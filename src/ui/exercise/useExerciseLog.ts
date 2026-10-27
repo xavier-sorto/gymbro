@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { prefillNext, restAfter } from '../../engine';
+import { beatsBest, isWorkingSet, prefillNext, restAfter, toPlannedSet } from '../../engine';
 import { StorageFullError, ValidationError, saveSet } from '../../store';
 import { reportError } from '../errors';
 import { unlockAudio } from '../rest/beep';
@@ -27,6 +27,7 @@ export function useExerciseLog(workoutExerciseId: string) {
   );
   const [draft, setDraft] = useState<SetDraft | null>(null);
   const [failure, setFailure] = useState<SaveFailure | null>(null);
+  const [record, setRecord] = useState(false);
   const data = loaded.data === 'missing' ? null : loaded.data;
 
   useEffect(() => {
@@ -42,6 +43,9 @@ export function useExerciseLog(workoutExerciseId: string) {
     unlockAudio();
     try {
       const saved = await saveSet({ workoutExerciseId: data.entry.id, ...draftToInput(data.exercise.kind, draft) });
+      const { kind } = data.exercise;
+      const working = (set: typeof saved) => isWorkingSet(set, kind);
+      setRecord(working(saved) && beatsBest(kind, toPlannedSet(saved), data.guide.best, data.sets.filter(working).map(toPlannedSet)));
       startRest(restAfter(data.exercise, saved), data.entry.id);
       loaded.reload();
     } catch (error) {
@@ -51,5 +55,5 @@ export function useExerciseLog(workoutExerciseId: string) {
     }
   };
 
-  return { ...loaded, data, missing: loaded.data === 'missing', draft, changeDraft, save, failure };
+  return { ...loaded, data, missing: loaded.data === 'missing', draft, changeDraft, save, failure, record };
 }

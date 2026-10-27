@@ -1,6 +1,6 @@
 import type { ExerciseKind } from '../store/types';
 import type { Best, PlannedSet } from './types';
-import type { CountingSession } from './workingSets';
+import { toPlannedSet, type CountingSession } from './workingSets';
 
 type Score = [number, number];
 
@@ -33,3 +33,26 @@ export function bestSoFar(sessions: readonly CountingSession[], kind: ExerciseKi
   }
   return best;
 }
+
+/**
+ * True when `set` beats the best from past sessions and every earlier working set of this workout.
+ * With no past best (the very first time) nothing counts as a record.
+ */
+export function beatsBest(
+  kind: ExerciseKind,
+  set: PlannedSet,
+  best: Best | null,
+  earlierToday: readonly PlannedSet[],
+): boolean {
+  if (!best) return false;
+  let bar = score(kind, toPlannedSet({ isWarmup: false, weightLb: best.weightLb ?? null, reps: best.reps ?? null, seconds: best.seconds ?? null }));
+  for (const earlier of earlierToday) {
+    const earlierScore = score(kind, earlier);
+    if (isBetter(earlierScore, bar)) bar = earlierScore;
+  }
+  return isBetter(score(kind, set), bar);
+}
+
+/** Epley estimate of the heaviest single, in whole pounds. */
+export const estimatedOneRepMax = (weightLb: number, reps: number) =>
+  reps <= 1 ? weightLb : Math.round(weightLb * (1 + reps / 30));

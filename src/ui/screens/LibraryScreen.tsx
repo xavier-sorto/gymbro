@@ -11,6 +11,7 @@ import { useLoad } from '../useLoad';
 
 const BACKUP_AND_DATA_HASH = '#/library/data';
 const DAY_TYPES_HASH = '#/days';
+const RECORDS_HASH = '#/records';
 
 function firstLetter(exercise: Exercise): string {
   return exercise.name.charAt(0).toUpperCase();
@@ -58,7 +59,11 @@ export function LibraryScreen() {
           <ExerciseRow exercise={exercise} isMainLift={library.data?.mainLiftIds.has(exercise.id) ?? false} />
         </div>
       ))}
-      <a class="link-row library-link" href={DAY_TYPES_HASH}>
+      <a class="link-row library-link" href={RECORDS_HASH}>
+        <span>Personal records</span>
+        <Icon name="chevronRight" />
+      </a>
+      <a class="link-row" href={DAY_TYPES_HASH}>
         <span>Day types</span>
         <Icon name="chevronRight" />
       </a>
