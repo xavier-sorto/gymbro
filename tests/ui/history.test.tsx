@@ -56,6 +56,21 @@ describe('history list', () => {
   });
 });
 
+describe('history filters reach past the first page', () => {
+  it('finds a workout that is older than the first 50 when searching', async () => {
+    await openStore();
+    for (let i = 1; i <= 59; i++) await finishedPush(i);
+    await finishedPush(60, [SEED_BENCH, OVERHEAD_PRESS]);
+    window.location.hash = '#/history';
+    renderApp();
+    await screen.findByText('Load more');
+    fireEvent.input(screen.getByLabelText('Search exercises'), { target: { value: 'overhead' } });
+    await waitFor(() => expect(document.querySelectorAll('.history-row')).toHaveLength(1));
+    expect(screen.queryByText('Load more')).toBeNull();
+    expect(screen.queryByText('No workouts match.')).toBeNull();
+  }, 60000);
+});
+
 describe('history filters and delete from the list', () => {
   async function finishedPull(daysAgo: number) {
     const workout = await startWorkout('seed-day-pull');

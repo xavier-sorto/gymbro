@@ -26,7 +26,7 @@ describe('finish', () => {
     expect((await listSets(first.id)).length).toBe(3);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Finish workout' }));
-    expect(await screen.findByText(/1 exercises · 2 sets/)).toBeTruthy();
+    expect(await screen.findByText(/1 exercise · 2 sets/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
     expect(await screen.findByText('Saved: Push, 2 sets')).toBeTruthy();
     expect(window.location.hash).toBe('#/');

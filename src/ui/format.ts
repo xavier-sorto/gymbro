@@ -54,4 +54,6 @@ export function formatChange({ value, unit }: { value: number; unit: 'lb' | 'rep
   return `${value > 0 ? '+' : '-'}${Math.abs(value)} ${word}`;
 }
 
+export const pluralExercises = (count: number) => `${count} ${count === 1 ? 'exercise' : 'exercises'}`;
+
 export const pluralSets = (count: number) => `${count} ${count === 1 ? 'set' : 'sets'}`;

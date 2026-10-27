@@ -54,8 +54,12 @@ export function HistoryScreen() {
     }
   };
 
-  // shortcut: filters only cover the workouts loaded so far (50 per "Load more"), upgrade to a store query if history gets huge
   const typed = query.trim().toLowerCase();
+  const filtering = typed !== '' || dayType !== '';
+  // A filter has to see every workout, so keep loading pages until there are no more (stops on an error).
+  useEffect(() => {
+    if (filtering && hasMore && !loading && !error) void loadMore();
+  }, [filtering, hasMore, loading, error, rows.length]);
   const dayTypes = [...new Set(rows.map((row) => row.title))];
   const shown = rows.filter(
     (row) =>

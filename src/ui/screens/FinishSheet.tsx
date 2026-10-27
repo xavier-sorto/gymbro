@@ -5,7 +5,7 @@ import { ErrorNotice } from '../components/ErrorNotice';
 import { Sheet } from '../components/Sheet';
 import { listWorkoutEntries } from '../data/workoutData';
 import { reportError } from '../errors';
-import { formatDuration, pluralSets } from '../format';
+import { formatDuration, pluralExercises, pluralSets } from '../format';
 import { skipRest } from '../rest/restTimer';
 import { navigate } from '../router';
 import { useLoad } from '../useLoad';
@@ -45,7 +45,7 @@ export function FinishSheet({ onClose }: { onClose: () => void }) {
       {summary.error && <ErrorNotice message={summary.error} onRetry={summary.reload} />}
       {summary.data && (
         <p>
-          {summary.data.exercisesWithSets} exercises · {pluralSets(summary.data.workingSets)} ·{' '}
+          {pluralExercises(summary.data.exercisesWithSets)} · {pluralSets(summary.data.workingSets)} ·{' '}
           {formatDuration(Date.now() - workout.startedAt)}
         </p>
       )}
