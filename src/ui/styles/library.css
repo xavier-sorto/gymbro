@@ -11,7 +11,11 @@
 .edit-form > label, .segmented-field { display: grid; gap: 6px; }
 .edit-form > label, .field-caption { font-size: 13px; font-weight: 600; color: var(--muted); }
 .segmented-field .segmented { margin: 0; background: var(--bg); }
-.edit-numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* Compact steppers, two per row when each gets at least 150px; one per row on narrower phones. */
+.edit-numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.edit-numbers .stepper-controls { gap: 4px; }
+.edit-numbers .stepper-controls button { width: 40px; height: 44px; }
+.edit-numbers .stepper-controls input { min-height: 44px; font-size: 24px; }
 .library-actions { margin-top: 14px; padding: 14px 16px 16px; background: var(--surface); border-radius: var(--radius); }
 .library-actions .big-button { margin: 0 0 8px; background: var(--surface-2); }
 .library-actions .danger-button { margin: 0; }
