@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { muscleGaps, musclesOf, type MuscleGap } from '../../engine';
 import { getDayType, listExercises, listSets, removeWorkoutExercise, updateWorkoutExercise } from '../../store';
 import type { Exercise, WorkoutExercise, WorkoutSet } from '../../store';
 import { useActiveWorkout } from '../AppContext';
@@ -11,6 +12,9 @@ import { reportError } from '../errors';
 import { formatDuration } from '../format';
 import { fractionOf } from '../progress';
 import { exerciseHash, navigate } from '../router';
+import { getSettings } from '../settings/settings';
+import { NeedsStrip } from '../volume/NeedsStrip';
+import { loadWeeklyVolume } from '../volume/volumeData';
 import { useNow } from '../useNow';
 import { useLoad } from '../useLoad';
 import { ExerciseCard } from './ExerciseCard';
@@ -19,6 +23,8 @@ import { FinishWorkoutButton } from './FinishWorkoutButton';
 interface WorkoutView {
   title: string;
   rows: { entry: WorkoutExercise; exercise: Exercise | undefined; sets: WorkoutSet[] }[];
+  /** Sets this week still needs for the muscles in this workout; empty if they could not be worked out. */
+  needs: MuscleGap[];
 }
 
 async function loadWorkoutView(workoutId: string, dayTypeId: string | null): Promise<WorkoutView> {
@@ -34,7 +40,19 @@ async function loadWorkoutView(workoutId: string, dayTypeId: string | null): Pro
       sets: await listSets(entry.id),
     })),
   );
-  return { title: dayType?.name ?? 'Workout', rows };
+  return { title: dayType?.name ?? 'Workout', rows, needs: await loadNeeds(rows.map((row) => row.exercise)) };
+}
+
+/** The weekly-volume gaps for the main muscles of these exercises, biggest first. Never fails the workout screen. */
+async function loadNeeds(exercises: (Exercise | undefined)[]): Promise<MuscleGap[]> {
+  try {
+    const inWorkout = new Set(exercises.flatMap((exercise) => (exercise ? [musclesOf(exercise).primary] : [])));
+    const volume = await loadWeeklyVolume(0);
+    return muscleGaps(volume.byMuscle, getSettings().volumeTargets).filter((gap) => inWorkout.has(gap.muscle)).slice(0, 4);
+  } catch (error) {
+    console.error('GymBro: could not work out the weekly volume for this workout', error);
+    return [];
+  }
 }
 
 export function WorkoutScreen() {
@@ -81,6 +99,7 @@ export function WorkoutScreen() {
         <span class="pill elapsed">{formatDuration(now - workout.startedAt)}</span>
       </header>
       {rows.length > 0 && <ProgressBar label="Exercises done" fraction={fractionOf(doneCount, rows.length)} />}
+      {view.data && <NeedsStrip needs={view.data.needs} />}
       {view.error && <ErrorNotice message={view.error} onRetry={view.reload} />}
       {actionError && <ErrorNotice message={actionError} />}
       {view.data && rows.length === 0 && <p class="hint">Add your first exercise</p>}

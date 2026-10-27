@@ -8,6 +8,7 @@ export * from './plates';
 export * from './prefill';
 export * from './rest';
 export * from './stall';
+export * from './suggestions';
 export * from './settings';
 export * from './types';
 export * from './warmups';

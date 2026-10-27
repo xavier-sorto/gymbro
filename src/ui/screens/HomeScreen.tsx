@@ -6,6 +6,8 @@ import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { reportError } from '../errors';
 import { formatTime, formatWeekdayDate } from '../format';
+import { SuggestionCard } from '../volume/SuggestionCard';
+import { loadSuggestion } from '../volume/suggestion';
 import { navigate } from '../router';
 import { useLoad } from '../useLoad';
 import { FinishWorkoutButton } from './FinishWorkoutButton';
@@ -13,6 +15,7 @@ import { FinishWorkoutButton } from './FinishWorkoutButton';
 export function HomeScreen() {
   const { active, notice, refreshActive } = useApp();
   const dayTypes = useLoad('listing day types', "Couldn't load your workouts.", listDayTypes, []);
+  const suggestion = useLoad('working out what to train', '', loadSuggestion, []);
   const backupDue = useLoad('checking when you last backed up', '', loadBackupDue, []);
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -49,6 +52,7 @@ export function HomeScreen() {
         </a>
       )}
       {startError && <ErrorNotice message={startError} />}
+      {!active && suggestion.data && <SuggestionCard suggestion={suggestion.data} onStart={start} />}
       {dayTypes.error && <ErrorNotice message={dayTypes.error} onRetry={dayTypes.reload} />}
       {active ? (
         <section class="resume">
