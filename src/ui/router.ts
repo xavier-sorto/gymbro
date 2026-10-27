@@ -11,7 +11,8 @@ export type Route =
   | { name: 'historyDetail'; workoutId: string }
   | { name: 'progress'; exerciseId: string }
   | { name: 'library' }
-  | { name: 'libraryExercise'; exerciseId: string };
+  | { name: 'libraryExercise'; exerciseId: string }
+  | { name: 'data' };
 
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
@@ -25,6 +26,7 @@ export function parseRoute(hash: string): Route {
   if (first === 'history') return second ? { name: 'historyDetail', workoutId: decodeURIComponent(second) } : { name: 'history' };
   if (first === 'progress' && second) return { name: 'progress', exerciseId: decodeURIComponent(second) };
   if (first === 'library') {
+    if (second === 'data') return { name: 'data' };
     return second === 'ex' && third ? { name: 'libraryExercise', exerciseId: decodeURIComponent(third) } : { name: 'library' };
   }
   return { name: 'home' };

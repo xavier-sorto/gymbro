@@ -8,6 +8,7 @@ import { ProgressChartScreen } from './progress-chart/ProgressChartScreen';
 import { RestTimerBar } from './rest/RestTimerBar';
 import { navigate, needsActiveWorkout, parseRoute, useRoute, type Route } from './router';
 import { AddExerciseScreen } from './screens/AddExerciseScreen';
+import { DataScreen } from './screens/DataScreen';
 import { DayTypeEditScreen } from './screens/DayTypeEditScreen';
 import { DayTypesScreen } from './screens/DayTypesScreen';
 import { ExerciseEditScreen } from './screens/ExerciseEditScreen';
@@ -40,6 +41,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'progress':
       return <ProgressChartScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
+    case 'data':
+      return <DataScreen />;
     case 'library':
       return <LibraryScreen />;
     case 'libraryExercise':
