@@ -1,6 +1,7 @@
 import type { ExerciseSession } from '../store/history';
 import { bestSoFar } from './best';
 import { effectiveSettings, type ExerciseSettings } from './settings';
+import { stallFor } from './stall';
 import { rampingTarget } from './targetRamping';
 import { bodyweightTarget, straightTarget, timedTarget } from './targetSimple';
 import type { Guide, Target } from './types';
@@ -26,12 +27,14 @@ export function getGuide(
 ): Guide {
   const sessions = countingSessions(history, exercise.kind);
   const last = sessions[0] ?? null;
+  const target = last ? targetFor(exercise, last) : null;
+  const workingWeight = target ? Math.max(...target.sets.map((set) => set.weightLb ?? 0)) : null;
   return {
     firstTime: last === null,
     last,
     best: bestSoFar(sessions, exercise.kind),
-    target: last ? targetFor(exercise, last) : null,
-    warmups: warmupsFor(exercise, null),
-    stall: null,
+    target,
+    warmups: warmupsFor(exercise, workingWeight),
+    stall: stallFor(exercise.kind, sessions, effectiveSettings(exercise)),
   };
 }

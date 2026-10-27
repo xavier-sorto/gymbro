@@ -1,6 +1,7 @@
 import { listDayTypes, startWorkout } from '../../store';
 import { useState } from 'preact/hooks';
 import { useApp } from '../AppContext';
+import { loadBackupDue } from '../data/backupReminder';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { reportError } from '../errors';
@@ -12,6 +13,7 @@ import { FinishWorkoutButton } from './FinishWorkoutButton';
 export function HomeScreen() {
   const { active, notice, refreshActive } = useApp();
   const dayTypes = useLoad('listing day types', "Couldn't load your workouts.", listDayTypes, []);
+  const backupDue = useLoad('checking when you last backed up', '', loadBackupDue, []);
   const [startError, setStartError] = useState<string | null>(null);
 
   const start = async (dayTypeId: string | null) => {
@@ -39,6 +41,12 @@ export function HomeScreen() {
           <Icon name="check" />
           {notice}
         </p>
+      )}
+      {backupDue.data && (
+        <a class="notice backup-reminder" href="#/library/data">
+          <Icon name="arrowUp" />
+          It has been a while since your last backup. Tap to back up.
+        </a>
       )}
       {startError && <ErrorNotice message={startError} />}
       {dayTypes.error && <ErrorNotice message={dayTypes.error} onRetry={dayTypes.reload} />}

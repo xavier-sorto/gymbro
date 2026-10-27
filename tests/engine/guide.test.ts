@@ -133,10 +133,12 @@ describe('bad settings fall back to defaults', () => {
   });
 });
 
-describe('stubs for later milestones', () => {
-  it('guide has no warm-ups and no stall yet', () => {
+describe('warm-ups and stall in the guide', () => {
+  it('suggests warm-ups up to the target weight and no stall for one session', () => {
     const guide = guideFor({ warmupSets: 2 }, [w(135, 8, 8, 8)]);
-    expect(guide.warmups).toEqual([]);
+    // last time hit the top of the rep range, so today adds 5 lb: 140
+    expect(show(guide.warmups)).toEqual(['70x5', '105x3']);
+    expect(guide.warmups.every((set) => set.isWarmup && set.role === 'warmup')).toBe(true);
     expect(guide.stall).toBeNull();
   });
 });

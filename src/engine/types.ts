@@ -32,6 +32,6 @@ export interface Guide {
   target: Target | null;
   /** Stub until the warm-ups milestone: always empty. */
   warmups: PlannedSet[];
-  /** Stub until the stall-detection milestone: always null. */
+  /** Weighted lifts only: set when the last few sessions made no progress, with a lighter set to restart from. */
   stall: { stuckSessions: number; reset: PlannedSet } | null;
 }

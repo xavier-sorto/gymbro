@@ -5,6 +5,11 @@ import { fireEvent, renderApp, renderInActivePush, screen, waitFor, SEED_BENCH }
 
 const type = (label: string, value: string) => fireEvent.input(screen.getByLabelText(label), { target: { value } });
 const save = () => fireEvent.click(screen.getByRole('button', { name: /Save set/ }));
+/** Lifts with history now start with suggested warm-ups; these tests log working sets. */
+const asWorkingSet = () => {
+  const warmup = screen.getByLabelText('Warm-up') as HTMLInputElement;
+  if (warmup.checked) fireEvent.click(warmup);
+};
 
 async function logFinishedBench(weightLb: number, reps: number) {
   const workout = await startWorkout(null);
@@ -39,10 +44,13 @@ describe('personal records', () => {
     await screen.findByLabelText('Weight');
     type('Weight', '95');
     type('Reps', '5');
+    asWorkingSet();
     save();
-    await waitFor(() => expect(screen.getByRole('timer')).toBeTruthy());
+    // the logger offers the first warm-up again once the saved set has reloaded
+    await waitFor(() => expect((screen.getByLabelText('Weight') as HTMLInputElement).value).toBe('50'));
     expect(screen.queryByText('New personal best!')).toBeNull();
     type('Weight', '105');
+    asWorkingSet();
     save();
     expect(await screen.findByText('New personal best!')).toBeTruthy();
   });

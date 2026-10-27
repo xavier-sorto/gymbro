@@ -23,8 +23,9 @@ export function GuidePanel({ kind, guide, status }: GuidePanelProps) {
       </section>
     );
   }
-  const { last, best, target } = guide;
+  const { last, best, target, warmups, stall } = guide;
   return (
+    <>
     <section class="guide guide-stats">
       {last && (
         <div class="stat">
@@ -47,5 +48,12 @@ export function GuidePanel({ kind, guide, status }: GuidePanelProps) {
         </div>
       )}
     </section>
+    {warmups.length > 0 && <p class="guide-warmups">Warm-up: {formatSets(kind, warmups)}</p>}
+    {stall && (
+      <p class="stall-note">
+        Stuck for {stall.stuckSessions} sessions. Try {formatSet(kind, stall.reset)} to reset.
+      </p>
+    )}
+    </>
   );
 }
