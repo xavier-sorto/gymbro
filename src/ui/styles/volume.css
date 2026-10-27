@@ -1,5 +1,7 @@
 /* Weekly volume by muscle */
 .volume-range { margin: 0 0 8px; }
+.volume-unassigned { align-items: flex-start; }
+.volume-unassigned .icon { margin-top: 1px; }
 .volume-row { margin: 10px 0; padding: 12px 14px; border-radius: var(--radius); background: var(--surface); --zone: var(--faint); }
 .volume-row.zone-building { --zone: var(--warm); }
 .volume-row.zone-target { --zone: var(--accent); }

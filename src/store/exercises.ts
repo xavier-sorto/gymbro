@@ -56,13 +56,17 @@ async function assertNameFree(nameKey: string, ownId: string | null): Promise<vo
   if (clash && clash.id !== ownId) throw new DuplicateNameError(clash.id);
 }
 
-export async function createExercise(input: ExerciseInput): Promise<Exercise> {
+export async function createExercise(
+  input: ExerciseInput & Pick<ExerciseExtras, 'primaryMuscle' | 'secondaryMuscles'>,
+): Promise<Exercise> {
   const fields = validateExerciseFields(withExerciseDefaults(input));
+  const muscles = validatedExtras({ primaryMuscle: input.primaryMuscle, secondaryMuscles: input.secondaryMuscles }, {});
   return writeTransaction(['exercises'], async (context) => {
     await assertNameFree(fields.nameKey, null);
     return context.save('exercises', {
       id: newId(),
       ...fields,
+      ...muscles,
       mergedInto: null,
       seed: false,
       updatedAt: 0,
@@ -80,7 +84,7 @@ export interface ExerciseExtras {
   secondaryMuscles?: Muscle[];
 }
 
-function validatedExtras(patch: ExerciseExtras, existing: Exercise): ExerciseExtras {
+function validatedExtras(patch: ExerciseExtras, existing: Pick<Exercise, 'primaryMuscle'>): ExerciseExtras {
   const extras: ExerciseExtras = {};
   if (patch.primaryMuscle !== undefined) {
     if (patch.primaryMuscle !== null && !MUSCLES.includes(patch.primaryMuscle)) throw new ValidationError('primaryMuscle', 'must be a muscle or none');

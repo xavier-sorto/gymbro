@@ -2,6 +2,12 @@ import { musclesOf } from '../../engine';
 import type { Exercise, ExerciseCategory, ExerciseKind, Muscle, SetStyle } from '../../store';
 import { DEFAULT_REP_RANGE } from '../../store/exerciseRules';
 
+/** The muscle choice, shared by the new-exercise form and the edit form. */
+export interface MuscleDraft {
+  primaryMuscle: Muscle | null;
+  secondaryMuscles: Muscle[];
+}
+
 /** What the edit form holds while the owner types: numbers stay text until Save. */
 export interface ExerciseDraft {
   name: string;
@@ -43,7 +49,7 @@ export function toDraft(exercise: Exercise): ExerciseDraft {
 }
 
 /** Choosing the main muscle takes it out of the secondary list; choosing none empties that list. */
-export function withPrimaryMuscle(draft: ExerciseDraft, primaryMuscle: Muscle | null): ExerciseDraft {
+export function withPrimaryMuscle<T extends MuscleDraft>(draft: T, primaryMuscle: Muscle | null): T {
   return {
     ...draft,
     primaryMuscle,
@@ -52,7 +58,7 @@ export function withPrimaryMuscle(draft: ExerciseDraft, primaryMuscle: Muscle | 
 }
 
 /** Adds or removes a secondary muscle; adding past the limit does nothing. */
-export function withSecondaryToggled(draft: ExerciseDraft, muscle: Muscle): ExerciseDraft {
+export function withSecondaryToggled<T extends MuscleDraft>(draft: T, muscle: Muscle): T {
   if (draft.secondaryMuscles.includes(muscle)) {
     return { ...draft, secondaryMuscles: draft.secondaryMuscles.filter((other) => other !== muscle) };
   }

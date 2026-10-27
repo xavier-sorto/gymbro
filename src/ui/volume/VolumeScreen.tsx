@@ -65,21 +65,14 @@ export function VolumeScreen() {
         {weeksAgo === 0 && ': totals grow as you train'}
       </p>
       {volume.error && <ErrorNotice message={volume.error} onRetry={volume.reload} />}
-      {volume.data && (
-        <>
-          {MUSCLES.map((muscle) => (
-            <MuscleRow key={muscle} muscle={muscle} {...volume.data!.byMuscle[muscle]} />
-          ))}
-          {volume.data.unassignedSets > 0 && (
-            <a class="link-row" href="#/library">
-              <span>
-                {setsText(volume.data.unassignedSets)} from exercises with no muscle set. Pick one in Library.
-              </span>
-              <Icon name="chevronRight" />
-            </a>
-          )}
-        </>
+      {volume.data && volume.data.unassignedSets > 0 && (
+        <a class="notice volume-unassigned" href="#/library">
+          <Icon name="search" />
+          <span>{setsText(volume.data.unassignedSets)} from exercises with no muscle set are not counted. Pick one in Library.</span>
+        </a>
       )}
+      {volume.data?.byMuscle &&
+        MUSCLES.map((muscle) => <MuscleRow key={muscle} muscle={muscle} {...volume.data!.byMuscle[muscle]} />)}
       <p class="hint volume-note">
         Counts working sets from Monday to Sunday, not warm-ups. A set also counts half for the muscles it helps, like triceps
         on a bench press. The ranges are guidelines for building muscle: studies start to show better growth from about 10 hard

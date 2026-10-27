@@ -11,8 +11,9 @@ import {
   startWorkout,
 } from '../../src/store';
 import { getDb } from '../../src/store/db';
+import { listExercises } from '../../src/store';
 import { weekRange } from '../../src/ui/volume/volumeData';
-import { fireEvent, renderApp, screen, waitFor, SEED_BENCH } from './helpers';
+import { fireEvent, renderApp, renderInActivePush, screen, waitFor, SEED_BENCH } from './helpers';
 
 const DAY = 24 * 60 * 60 * 1000;
 const SQUAT = 'seed-ex-back-squat';
@@ -106,12 +107,65 @@ describe('weekly volume screen', () => {
   });
 });
 
+describe('the warning about exercises with no muscle', () => {
+  it('sits above the muscle rows, where it is hard to miss', async () => {
+    await openStore();
+    const custom = await createExercise({ name: 'Landmine Press', kind: 'weighted', category: 'compound' });
+    await logged(custom.id, 5);
+    await openVolume();
+    const warning = (await screen.findByText(/5 sets from exercises with no muscle set are not counted/)).closest('a')!;
+    expect(warning.compareDocumentPosition(row('Chest')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('is not shown when every set belongs to a muscle', async () => {
+    await openStore();
+    await logged(SEED_BENCH, 2);
+    await openVolume();
+    await waitFor(() => expect(row('Chest').textContent).toContain('2 sets'));
+    expect(screen.queryByText(/not counted/)).toBeNull();
+  });
+});
+
+describe('choosing muscles when creating an exercise', () => {
+  async function openCreate(name: string) {
+    await renderInActivePush();
+    fireEvent.click(await screen.findByRole('button', { name: 'Add exercise' }));
+    fireEvent.input(await screen.findByLabelText('Search exercises'), { target: { value: name } });
+    fireEvent.click(await screen.findByRole('button', { name: `Create "${name}"` }));
+    return (await screen.findByLabelText(/^Main muscle/)) as HTMLSelectElement;
+  }
+
+  it('saves the main muscle and helpers with the new exercise, so its sets count right away', async () => {
+    const select = await openCreate('Dumbbell Overhead Press');
+    expect(select.value).toBe('');
+    fireEvent.change(select, { target: { value: 'shoulders' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Triceps' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await waitFor(() => expect(window.location.hash).toBe('#/workout'));
+    await waitFor(async () => {
+      const made = (await listExercises()).find((exercise) => exercise.name === 'Dumbbell Overhead Press');
+      expect(made).toMatchObject({ primaryMuscle: 'shoulders', secondaryMuscles: ['triceps'] });
+    });
+  });
+
+  it('still creates an exercise with no muscle chosen', async () => {
+    await openCreate('Zottman Curl');
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await waitFor(() => expect(window.location.hash).toBe('#/workout'));
+    await waitFor(async () => {
+      const made = (await listExercises()).find((exercise) => exercise.name === 'Zottman Curl');
+      expect(made).toBeDefined();
+      expect(made!.primaryMuscle).toBeUndefined();
+    });
+  });
+});
+
 describe('choosing muscles on the exercise edit screen', () => {
   it('starts from the starter muscles and saves a different main muscle, dropping it from the helpers', async () => {
     await openStore();
     window.location.hash = `#/library/ex/${SEED_BENCH}`;
     renderApp();
-    const select = (await screen.findByLabelText('Main muscle')) as HTMLSelectElement;
+    const select = (await screen.findByLabelText(/^Main muscle/)) as HTMLSelectElement;
     expect(select.value).toBe('chest');
     expect(screen.getByRole('button', { name: 'Triceps' }).getAttribute('aria-pressed')).toBe('true');
     fireEvent.change(select, { target: { value: 'triceps' } });
@@ -128,7 +182,7 @@ describe('choosing muscles on the exercise edit screen', () => {
     const custom = await createExercise({ name: 'Landmine Press', kind: 'weighted', category: 'compound' });
     window.location.hash = `#/library/ex/${custom.id}`;
     renderApp();
-    const select = (await screen.findByLabelText('Main muscle')) as HTMLSelectElement;
+    const select = (await screen.findByLabelText(/^Main muscle/)) as HTMLSelectElement;
     expect(select.value).toBe('');
     expect(screen.queryByText(/Also works/)).toBeNull();
     fireEvent.change(select, { target: { value: 'shoulders' } });
@@ -144,7 +198,7 @@ describe('choosing muscles on the exercise edit screen', () => {
     await openStore();
     window.location.hash = `#/library/ex/${SEED_BENCH}`;
     renderApp();
-    fireEvent.change(await screen.findByLabelText('Main muscle'), { target: { value: '' } });
+    fireEvent.change(await screen.findByLabelText(/^Main muscle/), { target: { value: '' } });
     expect(screen.queryByText(/Also works/)).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(async () => expect(await getExercise(SEED_BENCH)).toMatchObject({ primaryMuscle: null, secondaryMuscles: [] }));

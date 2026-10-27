@@ -1,6 +1,8 @@
 import { useState } from 'preact/hooks';
 import { createExercise, findSimilarExercises, DuplicateNameError } from '../../store';
 import type { DayType, Exercise, ExerciseCategory, ExerciseKind } from '../../store';
+import { MusclePicker } from '../library/MusclePicker';
+import type { MuscleDraft } from '../library/exerciseDraft';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { CATEGORY_OPTIONS, KIND_OPTIONS } from '../exercise/exerciseOptions';
 import { reportError } from '../errors';
@@ -18,13 +20,20 @@ export function CreateExerciseForm({ initialName, alsoAddTo, onUseExisting, onCr
   const [name, setName] = useState(initialName);
   const [kind, setKind] = useState<ExerciseKind>('weighted');
   const [category, setCategory] = useState<ExerciseCategory>('compound');
+  const [muscles, setMuscles] = useState<MuscleDraft>({ primaryMuscle: null, secondaryMuscles: [] });
   const [alsoAdd, setAlsoAdd] = useState(false);
   const [similar, setSimilar] = useState<Exercise[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const create = async () => {
     try {
-      const exercise = await createExercise({ name, kind, category });
+      const exercise = await createExercise({
+        name,
+        kind,
+        category,
+        // Leaving the muscle unset stores nothing, which stays different from choosing none later.
+        ...(muscles.primaryMuscle ? muscles : {}),
+      });
       await onCreated(exercise, alsoAdd);
     } catch (failure) {
       const message =
@@ -61,6 +70,7 @@ export function CreateExerciseForm({ initialName, alsoAddTo, onUseExisting, onCr
           {CATEGORY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </label>
+      <MusclePicker value={muscles} onChange={setMuscles} />
       {alsoAddTo && (
         <label class="checkbox-row">
           <input type="checkbox" checked={alsoAdd} onChange={(event) => setAlsoAdd(event.currentTarget.checked)} />
