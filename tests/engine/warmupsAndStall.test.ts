@@ -69,6 +69,14 @@ describe('stall detection', () => {
 });
 
 describe('the guide', () => {
+  it('suggests no warm-ups when they are switched off', () => {
+    const history = [session(1000, [{ w: 100, r: 8 }])];
+    const on = getGuide(exercise({ warmupSets: 2 }), history, { isMainLift: false });
+    const off = getGuide(exercise({ warmupSets: 2 }), history, { isMainLift: false, warmups: false });
+    expect(on.warmups.length).toBe(2);
+    expect(off.warmups).toEqual([]);
+  });
+
   it('builds warm-ups from today\'s target weight', () => {
     // last time 100 x 8 hit the top of the 6-8 range, so today's target is 105; half of that, 52.5, rounds to 55
     expect(show(guideFor(lifts([100, 8]), { warmupSets: 1 }).warmups)).toEqual(['55x5']);

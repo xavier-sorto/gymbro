@@ -5,6 +5,7 @@ import {
   SEED_MUSCLES,
   musclesOf,
   weeklyVolume,
+  targetFor,
   zoneFor,
   type VolumeSet,
 } from '../../src/engine';
@@ -89,6 +90,15 @@ describe('weekly targets', () => {
       expect(low, muscle).toBeLessThanOrEqual(14);
       expect(high, muscle).toBeGreaterThanOrEqual(16);
     }
+  });
+
+  it('scales the ranges for lighter and higher weeks, in whole sets', () => {
+    expect(targetFor('chest')).toEqual({ min: 8, low: 12, high: 20 });
+    expect(targetFor('chest', 'higher')).toEqual({ min: 10, low: 15, high: 25 });
+    expect(targetFor('chest', 'lighter')).toEqual({ min: 6, low: 9, high: 15 });
+    expect(zoneFor('chest', 12, 'higher')).toBe('building');
+    expect(zoneFor('chest', 12, 'lighter')).toBe('target');
+    expect(zoneFor('chest', 16, 'lighter')).toBe('above');
   });
 
   it('sorts a count into below, building, target and above', () => {

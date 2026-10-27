@@ -2,14 +2,14 @@ import { useState } from 'preact/hooks';
 import { platesFor } from '../../engine';
 import { BackLink } from '../components/BackLink';
 import { StepperField } from '../components/StepperField';
+import { getSettings } from '../settings/settings';
 
 const DEFAULT_TARGET = '135';
-const DEFAULT_BAR = '45';
 
 /** Which plates go on each side of the bar for a target weight. */
 export function PlatesScreen() {
   const [target, setTarget] = useState(DEFAULT_TARGET);
-  const [bar, setBar] = useState(DEFAULT_BAR);
+  const [bar, setBar] = useState(() => String(getSettings().barLb));
   const targetLb = Number(target) || 0;
   const barLb = Number(bar) || 0;
   const load = platesFor(targetLb, barLb);

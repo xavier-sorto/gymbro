@@ -83,6 +83,12 @@ export function HomeScreen() {
           <Icon name="chevronRight" />
         </a>
       )}
+      {!active && (
+        <a class="link-row" href="#/settings">
+          Settings
+          <Icon name="chevronRight" />
+        </a>
+      )}
     </main>
   );
 }

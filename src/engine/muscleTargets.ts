@@ -30,11 +30,23 @@ export const MUSCLE_TARGETS: Record<Muscle, MuscleTarget> = {
   abs: { min: 4, low: 10, high: 20 },
 };
 
+export const TARGET_SCALES = ['lighter', 'standard', 'higher'] as const;
+export type TargetScale = (typeof TARGET_SCALES)[number];
+
+const SCALE_FACTORS: Record<TargetScale, number> = { lighter: 0.75, standard: 1, higher: 1.25 };
+
+/** The ranges above scaled for someone who wants less or more volume, in whole sets. */
+export function targetFor(muscle: Muscle, scale: TargetScale = 'standard'): MuscleTarget {
+  const { min, low, high } = MUSCLE_TARGETS[muscle];
+  const factor = SCALE_FACTORS[scale];
+  return { min: Math.round(min * factor), low: Math.round(low * factor), high: Math.round(high * factor) };
+}
+
 export type VolumeZone = 'below' | 'building' | 'target' | 'above';
 
 /** Where a week's set count falls: under the minimum, building toward the range, in it, or past it. */
-export function zoneFor(muscle: Muscle, sets: number): VolumeZone {
-  const { min, low, high } = MUSCLE_TARGETS[muscle];
+export function zoneFor(muscle: Muscle, sets: number, scale: TargetScale = 'standard'): VolumeZone {
+  const { min, low, high } = targetFor(muscle, scale);
   if (sets > high) return 'above';
   if (sets >= low) return 'target';
   return sets >= min && sets > 0 ? 'building' : 'below';

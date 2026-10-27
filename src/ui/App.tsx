@@ -18,6 +18,8 @@ import { ExerciseEditScreen } from './screens/ExerciseEditScreen';
 import { ExerciseScreen } from './screens/ExerciseScreen';
 import { HistoryScreen } from './history/HistoryScreen';
 import { WorkoutDetailScreen } from './history/WorkoutDetailScreen';
+import { SettingsScreen } from './settings/SettingsScreen';
+import { loadSettings } from './settings/settings';
 import { VolumeScreen } from './volume/VolumeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
@@ -45,6 +47,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'progress':
       return <ProgressChartScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
+    case 'settings':
+      return <SettingsScreen />;
     case 'volume':
       return <VolumeScreen />;
     case 'bodyweight':
@@ -83,6 +87,7 @@ export function App() {
     (async () => {
       try {
         await openStore();
+        await loadSettings();
         const workout = await getActiveWorkout();
         setActive(workout);
         setStartup({ state: 'ready' });

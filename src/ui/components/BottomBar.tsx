@@ -4,7 +4,7 @@ import { Icon, type IconName } from './Icon';
 const TABS: { label: string; hash: string; icon: IconName; routes: string[] }[] = [
   { label: 'Workout', hash: '#/', icon: 'dumbbell', routes: ['home', 'workout', 'exercise', 'add', 'days', 'day'] },
   { label: 'History', hash: '#/history', icon: 'history', routes: ['history', 'historyDetail', 'progress', 'volume'] },
-  { label: 'Library', hash: '#/library', icon: 'library', routes: ['library', 'libraryExercise', 'data', 'records', 'plates', 'bodyweight'] },
+  { label: 'Library', hash: '#/library', icon: 'library', routes: ['library', 'libraryExercise', 'data', 'records', 'plates', 'bodyweight', 'settings'] },
 ];
 
 export function BottomBar({ route }: { route: Route }) {

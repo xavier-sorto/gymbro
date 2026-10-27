@@ -1,5 +1,6 @@
 import { getGuide, type Guide } from '../../engine';
 import { getExercise, getExerciseHistory, listSets } from '../../store';
+import { getSettings } from '../settings/settings';
 import type { Exercise, WorkoutExercise, WorkoutSet } from '../../store';
 import { getWorkoutEntry } from '../data/workoutData';
 
@@ -31,7 +32,7 @@ export async function loadExercise(workoutExerciseId: string): Promise<LoadedExe
     return { entry, exercise, sets, guide: EMPTY_GUIDE, guideStatus: 'history-failed' };
   }
   try {
-    return { entry, exercise, sets, guide: getGuide(exercise, history, { isMainLift: entry.isMainLift }), guideStatus: 'ok' };
+    return { entry, exercise, sets, guide: getGuide(exercise, history, { isMainLift: entry.isMainLift, warmups: getSettings().warmupSuggestions }), guideStatus: 'ok' };
   } catch (error) {
     console.error('GymBro: the guide failed', error);
     return { entry, exercise, sets, guide: EMPTY_GUIDE, guideStatus: 'unavailable' };

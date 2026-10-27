@@ -1,9 +1,10 @@
 import { useState } from 'preact/hooks';
-import { MUSCLES, MUSCLE_LABELS, MUSCLE_TARGETS, zoneFor, type Muscle, type VolumeZone } from '../../engine';
+import { MUSCLES, MUSCLE_LABELS, targetFor, zoneFor, type Muscle, type TargetScale, type VolumeZone } from '../../engine';
 import { BackLink } from '../components/BackLink';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { formatShortDate } from '../format';
+import { useSettings } from '../settings/settings';
 import { useLoad } from '../useLoad';
 import { loadWeeklyVolume, weekRange } from './volumeData';
 
@@ -17,10 +18,10 @@ const ZONE_TEXT: Record<VolumeZone, string> = {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const setsText = (sets: number) => `${Number.isInteger(sets) ? sets : sets.toFixed(1)} ${sets === 1 ? 'set' : 'sets'}`;
 
-function MuscleRow({ muscle, sets, days }: { muscle: Muscle; sets: number; days: number }) {
-  const { low, high } = MUSCLE_TARGETS[muscle];
-  const zone = zoneFor(muscle, sets);
-  const scale = Math.max(high * 1.25, sets);
+function MuscleRow({ muscle, sets, days, scale }: { muscle: Muscle; sets: number; days: number; scale: TargetScale }) {
+  const { low, high } = targetFor(muscle, scale);
+  const zone = zoneFor(muscle, sets, scale);
+  const barMax = Math.max(high * 1.25, sets);
   return (
     <div class={`volume-row zone-${zone}`}>
       <div class="volume-head">
@@ -28,8 +29,8 @@ function MuscleRow({ muscle, sets, days }: { muscle: Muscle; sets: number; days:
         <span class="volume-sets">{setsText(sets)}</span>
       </div>
       <div class="volume-bar" role="img" aria-label={`${MUSCLE_LABELS[muscle]}: ${setsText(sets)}, target ${low} to ${high}`}>
-        <div class="volume-band" style={{ left: `${(low / scale) * 100}%`, width: `${((high - low) / scale) * 100}%` }} />
-        <div class="volume-fill" style={{ width: `${(sets / scale) * 100}%` }} />
+        <div class="volume-band" style={{ left: `${(low / barMax) * 100}%`, width: `${((high - low) / barMax) * 100}%` }} />
+        <div class="volume-fill" style={{ width: `${(sets / barMax) * 100}%` }} />
       </div>
       <div class="volume-foot">
         <span>
@@ -45,6 +46,7 @@ function MuscleRow({ muscle, sets, days }: { muscle: Muscle; sets: number; days:
 
 /** Working sets per muscle for a week against a guideline range, so gaps and overload are easy to see. */
 export function VolumeScreen() {
+  const { volumeTargets, weekStartsOn } = useSettings();
   const [weeksAgo, setWeeksAgo] = useState(0);
   const volume = useLoad('loading weekly volume', "Couldn't load your weekly volume.", () => loadWeeklyVolume(weeksAgo), [weeksAgo]);
   const { start, end } = weekRange(weeksAgo, Date.now());
@@ -72,9 +74,9 @@ export function VolumeScreen() {
         </a>
       )}
       {volume.data?.byMuscle &&
-        MUSCLES.map((muscle) => <MuscleRow key={muscle} muscle={muscle} {...volume.data!.byMuscle[muscle]} />)}
+        MUSCLES.map((muscle) => <MuscleRow key={muscle} muscle={muscle} scale={volumeTargets} {...volume.data!.byMuscle[muscle]} />)}
       <p class="hint volume-note">
-        Counts working sets from Monday to Sunday, not warm-ups. A set also counts half for the muscles it helps, like triceps
+        Counts working sets from {weekStartsOn === 'sunday' ? 'Sunday to Saturday' : 'Monday to Sunday'}, not warm-ups. A set also counts half for the muscles it helps, like triceps
         on a bench press. The ranges are guidelines for building muscle: studies start to show better growth from about 10 hard
         sets per muscle a week, and going past the top of the range is hard to recover from. Needs vary, and effort is not
         tracked, so every working set is treated as hard.

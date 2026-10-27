@@ -54,10 +54,10 @@ body:has(.rest-bar) .screen > .next-set { bottom: calc(var(--bottom-bar) + var(-
 .rest-bar-clock { flex: 1; min-width: 0; display: grid; }
 .rest-bar-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
 .rest-bar-time { font-size: 44px; font-weight: 800; line-height: 1.05; }
-.rest-bar .progress { height: 5px; margin: 8px 0 0; background: rgba(255, 255, 255, 0.08); }
+.rest-bar .progress { height: 5px; margin: 8px 0 0; background: var(--on-rest); }
 .rest-bar-actions { display: grid; gap: 8px; }
-.rest-bar-actions button { min-height: 44px; min-width: 84px; font-weight: 700; background: rgba(255, 255, 255, 0.08); }
+.rest-bar-actions button { min-height: 44px; min-width: 84px; font-weight: 700; background: var(--on-rest); }
 .rest-bar-actions .rest-add { background: var(--accent); color: var(--accent-ink); }
 .rest-bar-done { animation: flash 0.5s infinite alternate; }
-@keyframes flash { from { background: var(--rest-surface); } to { background: #34441a; } }
+@keyframes flash { from { background: var(--rest-surface); } to { background: var(--rest-flash); } }
 .screen:has(> .next-set) { padding-bottom: calc(var(--bottom-bar) + var(--safe-bottom) + 360px); }

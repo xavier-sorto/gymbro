@@ -82,6 +82,10 @@ export function LibraryScreen() {
         <span>Day types</span>
         <Icon name="chevronRight" />
       </a>
+      <a class="link-row" href="#/settings">
+        <span>Settings</span>
+        <Icon name="chevronRight" />
+      </a>
       <a class="link-row" href={BACKUP_AND_DATA_HASH}>
         <span>Backup &amp; data</span>
         <Icon name="chevronRight" />

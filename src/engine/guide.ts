@@ -23,7 +23,7 @@ function targetFor(exercise: GuideExercise, last: CountingSession): Target {
 export function getGuide(
   exercise: GuideExercise,
   history: readonly ExerciseSession[],
-  _options: { isMainLift: boolean },
+  options: { isMainLift: boolean; /** false turns warm-up suggestions off everywhere. */ warmups?: boolean },
 ): Guide {
   const sessions = countingSessions(history, exercise.kind);
   const last = sessions[0] ?? null;
@@ -34,7 +34,7 @@ export function getGuide(
     last,
     best: bestSoFar(sessions, exercise.kind),
     target,
-    warmups: warmupsFor(exercise, workingWeight),
+    warmups: options.warmups === false ? [] : warmupsFor(exercise, workingWeight),
     stall: stallFor(exercise.kind, sessions, effectiveSettings(exercise)),
   };
 }

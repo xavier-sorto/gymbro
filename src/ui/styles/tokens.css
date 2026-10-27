@@ -18,6 +18,12 @@
   --danger-soft: rgba(255, 107, 107, 0.14);
   --rest-surface: #1b2112;
   --rest-line: #3a4a1e;
+  --bar-bg: #121316;
+  --on-rest: rgba(255, 255, 255, 0.08);
+  --rest-flash: #34441a;
+  --resume-from: #20261a;
+  --resume-line: #33401f;
+  --chart-bar: #2b3320;
   /* Chart colours, for the progress charts that come later. */
   --chart-weight: var(--accent);
   --chart-reps: var(--warm);
@@ -29,3 +35,34 @@
   --rest-height: 104px;
   --column: 430px;
 }
+
+/* Light theme, picked in Settings. A darker green stands in for the lime, which is too pale on white. */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #e9ebef;
+  --line: #d5d9e0;
+  --text: #14161a;
+  --muted: #565c67;
+  --faint: #7d838e;
+  --accent: #4d7c0f;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(77, 124, 15, 0.12);
+  --accent-line: rgba(77, 124, 15, 0.35);
+  --warm: #a35f00;
+  --warm-soft: rgba(163, 95, 0, 0.12);
+  --danger: #c62828;
+  --danger-soft: rgba(198, 40, 40, 0.1);
+  --rest-surface: #edf5d9;
+  --rest-line: #b9d37c;
+  --bar-bg: #ffffff;
+  --on-rest: rgba(0, 0, 0, 0.06);
+  --rest-flash: #d8ebaa;
+  --resume-from: #eaf3d3;
+  --resume-line: #c6dc92;
+  --chart-bar: #cfe3a1;
+}
+/* The installed app draws white status-bar text over the page, so keep that strip dark in the light theme. */
+:root[data-theme='light'] body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: #0b0c0e; z-index: 50; }
+:root[data-theme='light'] .segmented button[aria-pressed='true'], :root[data-theme='light'] .segmented button[aria-selected='true'] { background: #ffffff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18); }

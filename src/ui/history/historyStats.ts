@@ -6,15 +6,22 @@ export interface StatWorkout {
 export interface HistoryStats {
   weekWorkouts: number;
   weekVolumeLb: number;
-  /** Consecutive calendar weeks (Monday to Sunday) with a workout, ending this week or last week. */
+  /** Consecutive calendar weeks with a workout, ending this week or last week. */
   streakWeeks: number;
 }
 
-/** Midnight of the Monday that starts the week containing `time`, in local time. */
+let firstDayOfWeek: 0 | 1 = 1;
+
+/** 1 starts weeks on Monday (the default), 0 on Sunday. Set from the settings. */
+export function setWeekStartsOn(day: 0 | 1): void {
+  firstDayOfWeek = day;
+}
+
+/** Midnight of the day that starts the week containing `time` (Monday unless set otherwise), in local time. */
 export function weekStart(time: number): number {
   const day = new Date(time);
   day.setHours(0, 0, 0, 0);
-  day.setDate(day.getDate() - ((day.getDay() + 6) % 7));
+  day.setDate(day.getDate() - ((day.getDay() - firstDayOfWeek + 7) % 7));
   return day.getTime();
 }
 

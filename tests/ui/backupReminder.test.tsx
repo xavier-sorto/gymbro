@@ -26,6 +26,15 @@ describe('backupIsDue', () => {
   });
 });
 
+describe('backupIsDue with a chosen interval', () => {
+  it('uses the days given and is off at 0', () => {
+    expect(backupIsDue(null, NOW - 20 * DAY, NOW, NOW, 14)).toBe(true);
+    expect(backupIsDue(null, NOW - 20 * DAY, NOW, NOW, 30)).toBe(false);
+    expect(backupIsDue(null, NOW - 400 * DAY, NOW, NOW, 0)).toBe(false);
+    expect(backupIsDue(NOW - 70 * DAY, NOW - 90 * DAY, NOW, NOW, 60)).toBe(true);
+  });
+});
+
 describe('backup reminder on Home', () => {
   async function oldWorkout() {
     const workout = await startWorkout(null);
