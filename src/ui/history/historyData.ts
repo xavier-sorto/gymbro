@@ -1,12 +1,15 @@
 import { bestSoFar, compareBest, countingSessions, type BestChange } from '../../engine';
 import { getDb } from '../../store/db';
-import { getExerciseHistory, listDayTypes, listExercises, listSets, listWorkouts } from '../../store';
+import { getExerciseHistory, listExercises, listSets, listWorkouts } from '../../store';
 import type { Exercise, Workout, WorkoutExercise, WorkoutSet } from '../../store';
 import { listWorkoutEntries } from '../data/workoutData';
 import { formatWeekdayDate, pluralSets } from '../format';
 import { summarize, type HistoryStats } from './historyStats';
 
 export const HISTORY_PAGE_SIZE = 50;
+
+/** Every day type, deleted ones too, so past workouts keep their names. */
+const listAllDayTypes = () => getDb().dayTypes.toArray();
 export const UNNAMED_WORKOUT = 'Workout';
 
 export interface HistoryRowData {
@@ -59,7 +62,7 @@ async function loadExercisesWithSets(workoutId: string, allExercises: Exercise[]
 export async function loadHistoryPage(before?: number): Promise<HistoryPage> {
   const [workouts, dayTypes, exercises] = await Promise.all([
     listWorkouts({ limit: HISTORY_PAGE_SIZE, before }),
-    listDayTypes(),
+    listAllDayTypes(),
     listExercises(),
   ]);
   const rows = await Promise.all(
@@ -110,7 +113,7 @@ export const MISSING_WORKOUT = 'missing';
 export async function loadWorkoutDetail(workoutId: string): Promise<WorkoutDetail | typeof MISSING_WORKOUT> {
   const workout = await getDb().workouts.get(workoutId);
   if (!workout || workout.deleted || workout.finishedAt === null) return MISSING_WORKOUT;
-  const [dayTypes, exercises] = await Promise.all([listDayTypes(), listExercises()]);
+  const [dayTypes, exercises] = await Promise.all([listAllDayTypes(), listExercises()]);
   return {
     workout,
     title: dayTypes.find((dayType) => dayType.id === workout.dayTypeId)?.name ?? UNNAMED_WORKOUT,

@@ -1,11 +1,13 @@
 import { useState } from 'preact/hooks';
-import { getDayType, listExercises, updateDayType } from '../../store';
+import { deleteDayType, getDayType, listExercises, updateDayType } from '../../store';
 import type { DayType, Exercise } from '../../store';
 import { BackLink } from '../components/BackLink';
+import { ConfirmSheet } from '../components/ConfirmSheet';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { appendExercise, moveExercise, removeExercise, toggleMainLift, type TemplateLists } from '../dayTypes/templateEdits';
 import { reportError } from '../errors';
 import { Icon } from '../components/Icon';
+import { navigate } from '../router';
 import { useLoad } from '../useLoad';
 import { ExercisePicker } from './ExercisePicker';
 
@@ -20,6 +22,7 @@ export function DayTypeEditScreen({ dayTypeId }: { dayTypeId: string }) {
   const [typedName, setTypedName] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const dayType = template.data?.dayType;
 
   /** Saves a change and reloads; failures are shown and the screen keeps what is stored. */
@@ -38,6 +41,16 @@ export function DayTypeEditScreen({ dayTypeId }: { dayTypeId: string }) {
   };
 
   const nameOf = (id: string) => template.data?.exercises.find((exercise: Exercise) => exercise.id === id)?.name ?? 'Unknown exercise';
+
+  const removeDayType = async () => {
+    setConfirmingDelete(false);
+    try {
+      await deleteDayType(dayTypeId);
+      navigate('#/days');
+    } catch (error) {
+      setSaveError(reportError('deleting the day type', error, "Couldn't delete the day type. Try again."));
+    }
+  };
 
   const addToTemplate = async (exerciseId: string) => {
     const current = await getDayType(dayTypeId);
@@ -98,7 +111,20 @@ export function DayTypeEditScreen({ dayTypeId }: { dayTypeId: string }) {
               Add exercise
             </button>
           )}
+          <button type="button" class="danger-button" onClick={() => setConfirmingDelete(true)}>
+            Delete day type
+          </button>
         </>
+      )}
+      {confirmingDelete && dayType && (
+        <ConfirmSheet
+          title="Delete this day type?"
+          message={`${dayType.name} will no longer be offered when you start a workout. Workouts you already logged keep their history.`}
+          confirmLabel="Delete day type"
+          destructive
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={removeDayType}
+        />
       )}
     </main>
   );
