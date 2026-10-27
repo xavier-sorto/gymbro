@@ -17,6 +17,7 @@ export type Route =
   | { name: 'bodyweight' }
   | { name: 'volume' }
   | { name: 'settings' }
+  | { name: 'summary'; workoutId: string }
   | { name: 'data' };
 
 export function parseRoute(hash: string): Route {
@@ -34,6 +35,7 @@ export function parseRoute(hash: string): Route {
   if (first === 'bodyweight') return { name: 'bodyweight' };
   if (first === 'volume') return { name: 'volume' };
   if (first === 'settings') return { name: 'settings' };
+  if (first === 'summary' && second) return { name: 'summary', workoutId: decodeURIComponent(second) };
   if (first === 'progress' && second) return { name: 'progress', exerciseId: decodeURIComponent(second) };
   if (first === 'library') {
     if (second === 'data') return { name: 'data' };
@@ -45,6 +47,8 @@ export function parseRoute(hash: string): Route {
 export const progressHash = (exerciseId: string) => `#/progress/${encodeURIComponent(exerciseId)}`;
 
 export const dayHash = (dayTypeId: string) => `#/days/${encodeURIComponent(dayTypeId)}`;
+
+export const summaryHash = (workoutId: string) => `#/summary/${encodeURIComponent(workoutId)}`;
 
 export const historyHash = (workoutId: string) => `#/history/${encodeURIComponent(workoutId)}`;
 

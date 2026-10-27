@@ -1,4 +1,4 @@
-import { bestSoFar, compareBest, countingSessions, type BestChange } from '../../engine';
+import { bestSoFar, compareBest, countingSessions, type Best, type BestChange } from '../../engine';
 import { getDb } from '../../store/db';
 import { getExerciseHistory, listExercises, listSets, listWorkouts } from '../../store';
 import type { Exercise, Workout, WorkoutExercise, WorkoutSet } from '../../store';
@@ -32,6 +32,10 @@ export interface DetailExercise {
   sets: WorkoutSet[];
   /** Best set against the previous time the exercise was done, or null when there is nothing to compare. */
   change: BestChange | null;
+  /** The best set of this workout, null when it had no working sets. */
+  best: Best | null;
+  /** True when that beat the best of every earlier workout. A first time is not a record. */
+  isRecord: boolean;
 }
 
 export interface WorkoutDetail {
@@ -53,6 +57,8 @@ async function loadExercisesWithSets(workoutId: string, allExercises: Exercise[]
       exercise: allExercises.find((exercise) => exercise.id === entry.exerciseId),
       sets: await listSets(entry.id),
       change: null,
+      best: null,
+      isRecord: false,
     })),
   );
   return withSets.filter(({ sets }) => sets.length > 0);
@@ -97,14 +103,21 @@ export async function loadHistoryStats(now = Date.now()): Promise<HistoryStats> 
 /** Past sessions looked at to find the one before this workout. */
 const COMPARE_SESSIONS = 500;
 
-async function changeSinceLast(workout: Workout, { exercise, sets }: DetailExercise): Promise<BestChange | null> {
-  if (!exercise) return null;
+/** How this workout's best set compares with the last time and with every earlier time. */
+async function compareWithHistory(workout: Workout, { exercise, sets }: DetailExercise) {
+  if (!exercise) return { change: null, best: null, isRecord: false };
   const { kind } = exercise;
-  const today = bestSoFar(countingSessions([{ workoutId: workout.id, startedAt: workout.startedAt, isMainLift: false, sets }], kind), kind);
+  const best = bestSoFar(countingSessions([{ workoutId: workout.id, startedAt: workout.startedAt, isMainLift: false, sets }], kind), kind);
   const history = await getExerciseHistory(exercise.id, { sessions: COMPARE_SESSIONS });
-  const previous = history.find((session) => session.startedAt < workout.startedAt);
+  const earlier = history.filter((session) => session.startedAt < workout.startedAt);
+  const previous = earlier[0];
   const before = previous && bestSoFar(countingSessions([previous], kind), kind);
-  return today && before ? compareBest(kind, today, before) : null;
+  const bestEver = bestSoFar(countingSessions(earlier, kind), kind);
+  return {
+    change: best && before ? compareBest(kind, best, before) : null,
+    best,
+    isRecord: best !== null && bestEver !== null && compareBest(kind, best, bestEver).value > 0,
+  };
 }
 
 export const MISSING_WORKOUT = 'missing';
@@ -118,7 +131,47 @@ export async function loadWorkoutDetail(workoutId: string): Promise<WorkoutDetai
     workout,
     title: dayTypes.find((dayType) => dayType.id === workout.dayTypeId)?.name ?? UNNAMED_WORKOUT,
     exercises: await Promise.all(
-      (await loadExercisesWithSets(workoutId, exercises)).map(async (item) => ({ ...item, change: await changeSinceLast(workout, item) })),
+      (await loadExercisesWithSets(workoutId, exercises)).map(async (item) => ({ ...item, ...(await compareWithHistory(workout, item)) })),
     ),
+  };
+}
+
+/** Pounds lifted: weight times reps over the working sets. Bodyweight and timed sets add nothing. */
+export const volumeOf = (sets: readonly WorkoutSet[]) =>
+  sets.filter((set) => !set.isWarmup).reduce((total, set) => total + (set.weightLb ?? 0) * (set.reps ?? 0), 0);
+
+export interface WorkoutSummary {
+  detail: WorkoutDetail;
+  workingSets: number;
+  volumeLb: number;
+  /** The workout of the same day type before this one, for comparing volume. */
+  previous: { startedAt: number; volumeLb: number } | null;
+}
+
+async function volumeOfWorkout(workoutId: string): Promise<number> {
+  const entries = await listWorkoutEntries(workoutId);
+  return volumeOf((await Promise.all(entries.map((entry) => listSets(entry.id)))).flat());
+}
+
+/** A finished workout's totals, how its volume compares with last time, and its records. */
+export async function loadWorkoutSummary(workoutId: string): Promise<WorkoutSummary | typeof MISSING_WORKOUT> {
+  const detail = await loadWorkoutDetail(workoutId);
+  if (detail === MISSING_WORKOUT) return MISSING_WORKOUT;
+  const { workout } = detail;
+  const sets = detail.exercises.flatMap(({ sets: exerciseSets }) => exerciseSets);
+  const earlier =
+    workout.dayTypeId === null
+      ? undefined
+      : await getDb()
+          .workouts.where('startedAt')
+          .below(workout.startedAt)
+          .reverse()
+          .filter((other) => !other.deleted && other.finishedAt !== null && other.dayTypeId === workout.dayTypeId)
+          .first();
+  return {
+    detail,
+    workingSets: countWorking(sets),
+    volumeLb: volumeOf(sets),
+    previous: earlier ? { startedAt: earlier.startedAt, volumeLb: await volumeOfWorkout(earlier.id) } : null,
   };
 }

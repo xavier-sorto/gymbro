@@ -22,6 +22,7 @@ export function DetailExerciseBlock({ item, onEditSet }: DetailExerciseBlockProp
         ) : (
           <span class="exercise-block-name">{name}</span>
         )}
+        {item.isRecord && <span class="record-badge">Record</span>}
         {change && (
           <span class={`exercise-block-change${change.value > 0 ? ' up' : ''}`} aria-label={`Compared with last time: ${formatChange(change)}`}>
             {formatChange(change)}

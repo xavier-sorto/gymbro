@@ -19,6 +19,7 @@ import { ExerciseScreen } from './screens/ExerciseScreen';
 import { HistoryScreen } from './history/HistoryScreen';
 import { WorkoutDetailScreen } from './history/WorkoutDetailScreen';
 import { SettingsScreen } from './settings/SettingsScreen';
+import { SummaryScreen } from './summary/SummaryScreen';
 import { loadSettings } from './settings/settings';
 import { VolumeScreen } from './volume/VolumeScreen';
 import { HomeScreen } from './screens/HomeScreen';
@@ -47,6 +48,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'progress':
       return <ProgressChartScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
+    case 'summary':
+      return <SummaryScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'settings':
       return <SettingsScreen />;
     case 'volume':
@@ -103,7 +106,8 @@ export function App() {
   useWakeLock(ready && active !== null);
 
   useEffect(() => {
-    if (ready && !active && needsActiveWorkout(route)) navigate('#/');
+    // Read the real address, not the remembered route, which can lag a moment behind a navigation just made.
+    if (ready && !active && needsActiveWorkout(parseRoute(window.location.hash))) navigate('#/');
   }, [ready, active, route]);
 
   if (startup.state === 'loading') return <LoadingScreen />;

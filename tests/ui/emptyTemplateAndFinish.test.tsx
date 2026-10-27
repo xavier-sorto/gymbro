@@ -15,7 +15,7 @@ describe('empty template', () => {
 });
 
 describe('finish', () => {
-  it('counts only working sets and returns home with a Saved message', async () => {
+  it('counts only working sets, opens the summary, and Done returns home', async () => {
     await renderInActivePush();
     const workout = (await getActiveWorkout())!;
     const entries = await getDb().workoutExercises.where('workoutId').equals(workout.id).toArray();
@@ -28,9 +28,13 @@ describe('finish', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Finish workout' }));
     expect(await screen.findByText(/1 exercise · 2 sets/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
-    expect(await screen.findByText('Saved: Push, 2 sets')).toBeTruthy();
-    expect(window.location.hash).toBe('#/');
+    expect(await screen.findByText('Workout saved')).toBeTruthy();
+    expect(window.location.hash).toMatch(/^#\/summary\/.+/);
+    expect(screen.getByText('Sets').nextElementSibling?.textContent).toBe('2');
+    expect(screen.getByText('Volume').nextElementSibling?.textContent).toBe('1,040 lb');
     expect(await getActiveWorkout()).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    await waitFor(() => expect(window.location.hash).toBe('#/'));
     await waitFor(() => expect(screen.queryByRole('button', { name: /Resume/ })).toBeNull());
   });
 

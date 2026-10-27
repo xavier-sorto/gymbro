@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { finishWorkout, getDayType, listSets } from '../../store';
+import { finishWorkout, listSets } from '../../store';
 import { useActiveWorkout, useApp } from '../AppContext';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Sheet } from '../components/Sheet';
@@ -7,7 +7,7 @@ import { listWorkoutEntries } from '../data/workoutData';
 import { reportError } from '../errors';
 import { formatDuration, pluralExercises, pluralSets } from '../format';
 import { skipRest } from '../rest/restTimer';
-import { navigate } from '../router';
+import { navigate, summaryHash } from '../router';
 import { useLoad } from '../useLoad';
 
 interface Summary {
@@ -23,18 +23,17 @@ async function summarize(workoutId: string): Promise<Summary> {
 
 export function FinishSheet({ onClose }: { onClose: () => void }) {
   const workout = useActiveWorkout();
-  const { refreshActive, setNotice } = useApp();
+  const { refreshActive } = useApp();
   const summary = useLoad('summarizing the workout', "Couldn't count your sets.", () => summarize(workout.id), [workout.id]);
   const [finishError, setFinishError] = useState<string | null>(null);
 
   const finish = async () => {
     try {
-      const dayName = workout.dayTypeId ? (await getDayType(workout.dayTypeId)).name : 'Workout';
       await finishWorkout(workout.id);
       skipRest();
-      setNotice(summary.data ? `Saved: ${dayName}, ${pluralSets(summary.data.workingSets)}` : `Saved: ${dayName}`);
+      // Leave the workout screens first: once no workout is active they redirect home.
+      navigate(summaryHash(workout.id));
       await refreshActive();
-      navigate('#/');
     } catch (error) {
       setFinishError(reportError('finishing the workout', error, "Couldn't finish the workout. Try again."));
     }
