@@ -9,7 +9,8 @@ export type Route =
   | { name: 'day'; dayTypeId: string }
   | { name: 'history' }
   | { name: 'historyDetail'; workoutId: string }
-  | { name: 'library' };
+  | { name: 'library' }
+  | { name: 'libraryExercise'; exerciseId: string };
 
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
@@ -21,13 +22,17 @@ export function parseRoute(hash: string): Route {
   }
   if (first === 'days') return second ? { name: 'day', dayTypeId: decodeURIComponent(second) } : { name: 'days' };
   if (first === 'history') return second ? { name: 'historyDetail', workoutId: decodeURIComponent(second) } : { name: 'history' };
-  if (first === 'library') return { name: 'library' };
+  if (first === 'library') {
+    return second === 'ex' && third ? { name: 'libraryExercise', exerciseId: decodeURIComponent(third) } : { name: 'library' };
+  }
   return { name: 'home' };
 }
 
 export const dayHash = (dayTypeId: string) => `#/days/${encodeURIComponent(dayTypeId)}`;
 
 export const historyHash = (workoutId: string) => `#/history/${encodeURIComponent(workoutId)}`;
+
+export const libraryExerciseHash = (exerciseId: string) => `#/library/ex/${encodeURIComponent(exerciseId)}`;
 
 export const exerciseHash = (workoutExerciseId: string) => `#/workout/ex/${encodeURIComponent(workoutExerciseId)}`;
 

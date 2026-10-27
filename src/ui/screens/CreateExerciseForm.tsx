@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { createExercise, findSimilarExercises, DuplicateNameError } from '../../store';
 import type { DayType, Exercise, ExerciseCategory, ExerciseKind } from '../../store';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { CATEGORY_OPTIONS, KIND_OPTIONS } from '../exercise/exerciseOptions';
 import { reportError } from '../errors';
 
 interface CreateExerciseFormProps {
@@ -12,17 +13,6 @@ interface CreateExerciseFormProps {
   /** Called with the new exercise once it exists; it throws if what follows (adding it somewhere) fails. */
   onCreated: (exercise: Exercise, alsoAdd: boolean) => Promise<void>;
 }
-
-const KINDS: { value: ExerciseKind; label: string }[] = [
-  { value: 'weighted', label: 'Weights' },
-  { value: 'bodyweight', label: 'Bodyweight' },
-  { value: 'timed', label: 'Timed' },
-];
-const CATEGORIES: { value: ExerciseCategory; label: string }[] = [
-  { value: 'heavy', label: 'Heavy' },
-  { value: 'compound', label: 'Compound' },
-  { value: 'isolation', label: 'Isolation' },
-];
 
 export function CreateExerciseForm({ initialName, alsoAddTo, onUseExisting, onCreated }: CreateExerciseFormProps) {
   const [name, setName] = useState(initialName);
@@ -62,13 +52,13 @@ export function CreateExerciseForm({ initialName, alsoAddTo, onUseExisting, onCr
       <label>
         Kind
         <select value={kind} onChange={(event) => setKind(event.currentTarget.value as ExerciseKind)}>
-          {KINDS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          {KIND_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </label>
       <label>
         Type
         <select value={category} onChange={(event) => setCategory(event.currentTarget.value as ExerciseCategory)}>
-          {CATEGORIES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          {CATEGORY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </label>
       {alsoAddTo && (

@@ -1,0 +1,18 @@
+/* Library list and exercise edit screen */
+.library-title { margin: 8px 0 14px; }
+.library-letter { font-size: 13px; font-weight: 700; color: var(--faint); margin: 16px 4px 8px; }
+.library-row { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 14px; margin-bottom: 8px; background: var(--surface); border-radius: 16px; }
+.library-row-text { flex: 1; min-width: 0; }
+.library-row-name { font-weight: 700; font-size: 17px; }
+.library-row .icon { color: var(--faint); }
+.library-link { margin-top: 20px; }
+.library-save { width: auto; min-height: 44px; margin: 0; padding: 0 20px; font-size: 16px; }
+.edit-form { display: grid; gap: 14px; margin-top: 8px; }
+.edit-form > label, .segmented-field { display: grid; gap: 6px; }
+.edit-form > label, .field-caption { font-size: 13px; font-weight: 600; color: var(--muted); }
+.segmented-field .segmented { margin: 0; background: var(--bg); }
+.edit-numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.library-actions { margin-top: 14px; padding: 14px 16px 16px; background: var(--surface); border-radius: var(--radius); }
+.library-actions .big-button { margin: 0 0 8px; background: var(--surface-2); }
+.library-actions .danger-button { margin: 0; }
+.library-actions .hint { padding: 0; }

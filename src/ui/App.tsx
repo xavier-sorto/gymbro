@@ -9,11 +9,12 @@ import { navigate, needsActiveWorkout, parseRoute, useRoute, type Route } from '
 import { AddExerciseScreen } from './screens/AddExerciseScreen';
 import { DayTypeEditScreen } from './screens/DayTypeEditScreen';
 import { DayTypesScreen } from './screens/DayTypesScreen';
-import { ComingSoonScreen } from './screens/ComingSoonScreen';
+import { ExerciseEditScreen } from './screens/ExerciseEditScreen';
 import { ExerciseScreen } from './screens/ExerciseScreen';
 import { HistoryScreen } from './history/HistoryScreen';
 import { WorkoutDetailScreen } from './history/WorkoutDetailScreen';
 import { HomeScreen } from './screens/HomeScreen';
+import { LibraryScreen } from './screens/LibraryScreen';
 import { LoadingScreen, StartupErrorScreen } from './screens/StartupScreen';
 import { WorkoutScreen } from './screens/WorkoutScreen';
 import { useWakeLock } from './useWakeLock';
@@ -37,7 +38,9 @@ function ScreenFor({ route }: { route: Route }) {
     case 'historyDetail':
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'library':
-      return <ComingSoonScreen title="Library" />;
+      return <LibraryScreen />;
+    case 'libraryExercise':
+      return <ExerciseEditScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
     default:
       return <HomeScreen />;
   }
