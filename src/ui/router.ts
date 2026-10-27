@@ -8,6 +8,7 @@ export type Route =
   | { name: 'days' }
   | { name: 'day'; dayTypeId: string }
   | { name: 'history' }
+  | { name: 'historyDetail'; workoutId: string }
   | { name: 'library' };
 
 export function parseRoute(hash: string): Route {
@@ -19,12 +20,14 @@ export function parseRoute(hash: string): Route {
     return { name: 'workout' };
   }
   if (first === 'days') return second ? { name: 'day', dayTypeId: decodeURIComponent(second) } : { name: 'days' };
-  if (first === 'history') return { name: 'history' };
+  if (first === 'history') return second ? { name: 'historyDetail', workoutId: decodeURIComponent(second) } : { name: 'history' };
   if (first === 'library') return { name: 'library' };
   return { name: 'home' };
 }
 
 export const dayHash = (dayTypeId: string) => `#/days/${encodeURIComponent(dayTypeId)}`;
+
+export const historyHash = (workoutId: string) => `#/history/${encodeURIComponent(workoutId)}`;
 
 export const exerciseHash = (workoutExerciseId: string) => `#/workout/ex/${encodeURIComponent(workoutExerciseId)}`;
 
