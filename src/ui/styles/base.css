@@ -10,6 +10,8 @@ body {
 }
 h1, h2, p { margin: 0; }
 button, input, select, textarea { font: inherit; color: inherit; }
+/* Without this iOS reads a quick second tap on a + button as double-tap zoom. */
+html, body, a, button, input, select, textarea, label { touch-action: manipulation; }
 button { min-height: 48px; min-width: 48px; border: 0; border-radius: var(--radius-small); background: var(--surface); padding: 0 16px; cursor: pointer; }
 button:disabled { opacity: 0.4; cursor: default; }
 input, select, textarea { min-height: 56px; border-radius: var(--radius-small); border: 0; background: var(--surface); padding: 0 16px; font-size: 18px; font-weight: 600; }

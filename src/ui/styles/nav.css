@@ -1,5 +1,5 @@
 /* Bottom tab bar */
-.bottom-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: min(var(--column), 100%); display: flex; background: rgba(18, 19, 22, 0.96); backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding: 0 env(safe-area-inset-right, 0px) var(--safe-bottom) env(safe-area-inset-left, 0px); z-index: 10; }
+.bottom-bar { position: fixed; left: 0; right: 0; margin: 0 auto; bottom: 0; width: min(var(--column), 100%); display: flex; background: rgb(18, 19, 22); border-top: 1px solid var(--line); padding: 0 env(safe-area-inset-right, 0px) var(--safe-bottom) env(safe-area-inset-left, 0px); z-index: 10; }
 .bottom-bar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: var(--bottom-bar); font-size: 11px; font-weight: 600; color: var(--faint); }
 .bottom-bar .icon { width: 24px; height: 24px; }
 .bottom-bar a.tab-current { color: var(--accent); }
