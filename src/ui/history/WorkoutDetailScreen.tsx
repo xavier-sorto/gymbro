@@ -11,6 +11,7 @@ import { formatDuration, formatTime, formatWeekdayDate } from '../format';
 import { navigate } from '../router';
 import { useLoad } from '../useLoad';
 import { DetailExerciseBlock } from './DetailExerciseBlock';
+import { EditWorkoutSheet } from './EditWorkoutSheet';
 import { countWorking, deleteWorkoutMessage, loadWorkoutDetail, MISSING_WORKOUT } from './historyData';
 
 const HISTORY_HASH = '#/history';
@@ -19,6 +20,7 @@ export function WorkoutDetailScreen({ workoutId }: { workoutId: string }) {
   const detail = useLoad('loading a past workout', "Couldn't load this workout.", () => loadWorkoutDetail(workoutId), [workoutId]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [editingDetails, setEditingDetails] = useState(false);
   const [editing, setEditing] = useState<{ set: WorkoutSet; exercise: Exercise } | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -50,6 +52,15 @@ export function WorkoutDetailScreen({ workoutId }: { workoutId: string }) {
               type="button"
               onClick={() => {
                 setMenuOpen(false);
+                setEditingDetails(true);
+              }}
+            >
+              Edit date and note
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
                 setConfirmingDelete(true);
               }}
             >
@@ -67,6 +78,7 @@ export function WorkoutDetailScreen({ workoutId }: { workoutId: string }) {
             {formatWeekdayDate(data.workout.startedAt)} · {formatTime(data.workout.startedAt).toLowerCase()}
           </p>
           <h1 class="h1">{data.title}</h1>
+          {data.workout.note && <p class="exercise-note workout-note">{data.workout.note}</p>}
           <div class="detail-stats">
             <div class="stat">
               <div class="stat-key">Time</div>
@@ -94,6 +106,16 @@ export function WorkoutDetailScreen({ workoutId }: { workoutId: string }) {
           onClose={() => setEditing(null)}
           onChanged={() => {
             setEditing(null);
+            detail.reload();
+          }}
+        />
+      )}
+      {editingDetails && data && (
+        <EditWorkoutSheet
+          workout={data.workout}
+          onClose={() => setEditingDetails(false)}
+          onSaved={() => {
+            setEditingDetails(false);
             detail.reload();
           }}
         />

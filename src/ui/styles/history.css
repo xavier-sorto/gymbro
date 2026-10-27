@@ -27,4 +27,5 @@
 .detail-set { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; margin-top: 4px; padding: 0 14px; border-radius: 14px; background: var(--bg); text-align: left; }
 .detail-set-number { width: 26px; font-weight: 700; color: var(--faint); font-size: 15px; }
 .detail-set-value { flex: 1; font-size: 20px; font-weight: 700; }
+.workout-note { padding: 6px 0 2px; font-size: 15px; white-space: pre-wrap; }
 .exercise-note { padding: 6px 4px 4px; font-size: 14px; color: var(--muted); font-style: italic; }

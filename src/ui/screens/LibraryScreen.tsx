@@ -14,6 +14,7 @@ const BACKUP_AND_DATA_HASH = '#/library/data';
 const DAY_TYPES_HASH = '#/days';
 const RECORDS_HASH = '#/records';
 const PLATES_HASH = '#/plates';
+const BODYWEIGHT_HASH = '#/bodyweight';
 
 function ExerciseRow({ exercise, isMainLift }: { exercise: Exercise; isMainLift: boolean }) {
   return (
@@ -67,6 +68,10 @@ export function LibraryScreen() {
       )}
       <a class="link-row library-link" href={RECORDS_HASH}>
         <span>Personal records</span>
+        <Icon name="chevronRight" />
+      </a>
+      <a class="link-row" href={BODYWEIGHT_HASH}>
+        <span>Bodyweight</span>
         <Icon name="chevronRight" />
       </a>
       <a class="link-row" href={PLATES_HASH}>

@@ -17,6 +17,7 @@
 .edit-numbers .stepper-controls { gap: 4px; }
 .edit-numbers .stepper-controls button { width: 40px; height: 44px; }
 .edit-numbers .stepper-controls input { min-height: 44px; font-size: 24px; }
+.bodyweight-stats { grid-template-columns: repeat(2, 1fr); margin-bottom: 8px; }
 .plate-row { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 96px; margin: 12px 0 4px; padding: 14px; border-radius: var(--radius); background: var(--surface); }
 .plate-bar { flex: none; width: 36px; height: 10px; border-radius: 5px; background: var(--faint); }
 .plate { display: grid; place-items: center; min-width: 34px; padding: 0 4px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 15px; }
