@@ -12,6 +12,7 @@ import { useLoad } from '../useLoad';
 const BACKUP_AND_DATA_HASH = '#/library/data';
 const DAY_TYPES_HASH = '#/days';
 const RECORDS_HASH = '#/records';
+const PLATES_HASH = '#/plates';
 
 function firstLetter(exercise: Exercise): string {
   return exercise.name.charAt(0).toUpperCase();
@@ -61,6 +62,10 @@ export function LibraryScreen() {
       ))}
       <a class="link-row library-link" href={RECORDS_HASH}>
         <span>Personal records</span>
+        <Icon name="chevronRight" />
+      </a>
+      <a class="link-row" href={PLATES_HASH}>
+        <span>Plate calculator</span>
         <Icon name="chevronRight" />
       </a>
       <a class="link-row" href={DAY_TYPES_HASH}>

@@ -16,6 +16,10 @@
 .edit-numbers .stepper-controls { gap: 4px; }
 .edit-numbers .stepper-controls button { width: 40px; height: 44px; }
 .edit-numbers .stepper-controls input { min-height: 44px; font-size: 24px; }
+.plate-row { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 96px; margin: 12px 0 4px; padding: 14px; border-radius: var(--radius); background: var(--surface); }
+.plate-bar { flex: none; width: 36px; height: 10px; border-radius: 5px; background: var(--faint); }
+.plate { display: grid; place-items: center; min-width: 34px; padding: 0 4px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 15px; }
+.plate-summary { text-align: center; margin: 8px 0; font-size: 20px; font-weight: 800; }
 .library-actions { margin-top: 14px; padding: 14px 16px 16px; background: var(--surface); border-radius: var(--radius); }
 .library-actions .big-button { margin: 0 0 8px; background: var(--surface-2); }
 .library-actions .danger-button { margin: 0; }

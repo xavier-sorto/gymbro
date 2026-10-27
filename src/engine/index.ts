@@ -1,6 +1,7 @@
 export * from './best';
 export * from './dayList';
 export * from './guide';
+export * from './plates';
 export * from './prefill';
 export * from './rest';
 export * from './settings';

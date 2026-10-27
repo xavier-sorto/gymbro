@@ -13,6 +13,7 @@ export type Route =
   | { name: 'library' }
   | { name: 'libraryExercise'; exerciseId: string }
   | { name: 'records' }
+  | { name: 'plates' }
   | { name: 'data' };
 
 export function parseRoute(hash: string): Route {
@@ -26,6 +27,7 @@ export function parseRoute(hash: string): Route {
   if (first === 'days') return second ? { name: 'day', dayTypeId: decodeURIComponent(second) } : { name: 'days' };
   if (first === 'history') return second ? { name: 'historyDetail', workoutId: decodeURIComponent(second) } : { name: 'history' };
   if (first === 'records') return { name: 'records' };
+  if (first === 'plates') return { name: 'plates' };
   if (first === 'progress' && second) return { name: 'progress', exerciseId: decodeURIComponent(second) };
   if (first === 'library') {
     if (second === 'data') return { name: 'data' };

@@ -5,6 +5,7 @@ import { AppContext } from './AppContext';
 import { BottomBar } from './components/BottomBar';
 import { reportError } from './errors';
 import { ProgressChartScreen } from './progress-chart/ProgressChartScreen';
+import { PlatesScreen } from './plates/PlatesScreen';
 import { RecordsScreen } from './records/RecordsScreen';
 import { RestTimerBar } from './rest/RestTimerBar';
 import { navigate, needsActiveWorkout, parseRoute, useRoute, type Route } from './router';
@@ -42,6 +43,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
     case 'progress':
       return <ProgressChartScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
+    case 'plates':
+      return <PlatesScreen />;
     case 'records':
       return <RecordsScreen />;
     case 'data':
