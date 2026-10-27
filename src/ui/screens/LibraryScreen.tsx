@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon';
 import { SearchField } from '../components/SearchField';
 import { loadLibrary } from '../data/libraryData';
 import { categoryLabel, kindLabel } from '../exercise/exerciseOptions';
+import { arrangeExercises, groupLabel } from '../exercise/arrangeExercises';
 import { filterExercisesByName } from '../exercise/filterExercises';
 import { libraryExerciseHash } from '../router';
 import { useLoad } from '../useLoad';
@@ -13,10 +14,6 @@ const BACKUP_AND_DATA_HASH = '#/library/data';
 const DAY_TYPES_HASH = '#/days';
 const RECORDS_HASH = '#/records';
 const PLATES_HASH = '#/plates';
-
-function firstLetter(exercise: Exercise): string {
-  return exercise.name.charAt(0).toUpperCase();
-}
 
 function ExerciseRow({ exercise, isMainLift }: { exercise: Exercise; isMainLift: boolean }) {
   return (
@@ -42,7 +39,10 @@ function ExerciseRow({ exercise, isMainLift }: { exercise: Exercise; isMainLift:
 export function LibraryScreen() {
   const library = useLoad('loading the library', "Couldn't load your exercises.", loadLibrary, []);
   const [query, setQuery] = useState('');
-  const shown = filterExercisesByName(library.data?.exercises ?? [], query);
+  const [showArchived, setShowArchived] = useState(false);
+  const everything = library.data?.exercises ?? [];
+  const archivedCount = everything.filter((exercise) => exercise.archived).length;
+  const shown = filterExercisesByName(arrangeExercises(everything, showArchived), query);
 
   return (
     <main class="screen">
@@ -54,12 +54,17 @@ export function LibraryScreen() {
       )}
       {shown.map((exercise, index) => (
         <div key={exercise.id}>
-          {firstLetter(exercise) !== (shown[index - 1] && firstLetter(shown[index - 1] as Exercise)) && (
-            <div class="library-letter">{firstLetter(exercise)}</div>
+          {groupLabel(exercise) !== (shown[index - 1] && groupLabel(shown[index - 1] as Exercise)) && (
+            <div class="library-letter">{groupLabel(exercise)}</div>
           )}
           <ExerciseRow exercise={exercise} isMainLift={library.data?.mainLiftIds.has(exercise.id) ?? false} />
         </div>
       ))}
+      {archivedCount > 0 && (
+        <button type="button" class="link-button" onClick={() => setShowArchived(!showArchived)}>
+          {showArchived ? 'Hide archived' : `Show archived (${archivedCount})`}
+        </button>
+      )}
       <a class="link-row library-link" href={RECORDS_HASH}>
         <span>Personal records</span>
         <Icon name="chevronRight" />

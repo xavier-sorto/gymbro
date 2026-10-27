@@ -19,6 +19,7 @@
 .guide .hint { background: none; }
 .logged-sets { margin-top: 10px; }
 .logged-sets button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; margin: 4px 0; padding: 0 14px; text-align: left; font-size: 20px; font-weight: 700; border-radius: var(--radius-small); }
+.exercise-cues { margin: 8px 0 0; padding: 4px 0 4px 12px; border-left: 3px solid var(--accent); color: var(--muted); font-size: 15px; white-space: pre-wrap; }
 .guide-warmups { margin: 10px 4px 0; color: var(--muted); font-size: 15px; font-weight: 600; }
 .stall-note { margin: 10px 0 0; padding: 12px 14px; border-radius: 16px; background: var(--warm-soft); color: var(--warm); font-weight: 600; }
 .set-mark { font-size: 12px; font-weight: 800; padding: 3px 7px; border-radius: 7px; background: var(--warm-soft); color: var(--warm); }

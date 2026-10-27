@@ -12,6 +12,9 @@ export interface ExerciseDraft {
   weightStepLb: string;
   warmupSets: string;
   restSeconds: string;
+  notes: string;
+  favorite: boolean;
+  archived: boolean;
 }
 
 export function toDraft(exercise: Exercise): ExerciseDraft {
@@ -25,6 +28,9 @@ export function toDraft(exercise: Exercise): ExerciseDraft {
     weightStepLb: String(exercise.weightStepLb),
     warmupSets: String(exercise.warmupSets),
     restSeconds: String(exercise.restSeconds),
+    notes: exercise.notes ?? '',
+    favorite: exercise.favorite ?? false,
+    archived: exercise.archived ?? false,
   };
 }
 
@@ -49,5 +55,8 @@ export function toPatch(draft: ExerciseDraft) {
     weightStepLb: Number(draft.weightStepLb),
     warmupSets: Number(draft.warmupSets),
     restSeconds: Number(draft.restSeconds),
+    notes: draft.notes,
+    favorite: draft.favorite,
+    archived: draft.archived,
   };
 }

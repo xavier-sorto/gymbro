@@ -4,6 +4,7 @@ import type { DayType, Exercise } from '../../store';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { SearchField } from '../components/SearchField';
+import { arrangeExercises } from '../exercise/arrangeExercises';
 import { filterExercisesByName } from '../exercise/filterExercises';
 import { listRecentExerciseIds } from '../data/workoutData';
 import { reportError } from '../errors';
@@ -13,7 +14,8 @@ import { CreateExerciseForm } from './CreateExerciseForm';
 const RECENT_COUNT = 5;
 
 async function loadChoices() {
-  const [exercises, recentIds] = await Promise.all([listExercises(), listRecentExerciseIds(RECENT_COUNT)]);
+  const [everything, recentIds] = await Promise.all([listExercises(), listRecentExerciseIds(RECENT_COUNT)]);
+  const exercises = arrangeExercises(everything, false);
   const recent = recentIds.map((id) => exercises.find((e) => e.id === id)).filter((e): e is Exercise => e !== undefined);
   return { exercises, recent };
 }

@@ -26,6 +26,7 @@ export function ExerciseScreen({ workoutExerciseId }: { workoutExerciseId: strin
       {data && draft && (
         <>
           <ExerciseHeader key={data.entry.updatedAt} entry={data.entry} exercise={data.exercise} onChanged={log.reload} />
+          {data.exercise.notes && <p class="exercise-cues">{data.exercise.notes}</p>}
           {log.record && <p class="notice">New personal best!</p>}
           <GuidePanel kind={data.exercise.kind} guide={data.guide} status={data.guideStatus} />
           <LoggedSets kind={data.exercise.kind} sets={data.sets} onEdit={setEditing} />

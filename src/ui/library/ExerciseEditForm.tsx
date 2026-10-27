@@ -99,6 +99,24 @@ export function ExerciseEditForm({ exercise, setCount }: ExerciseEditFormProps) 
           <StepperField label="Warm-up sets" value={draft.warmupSets} step={1} onChange={(warmupSets) => change({ warmupSets })} />
           <StepperField label="Rest (seconds)" value={draft.restSeconds} step={15} onChange={(restSeconds) => change({ restSeconds })} />
         </div>
+        <label>
+          Form cues
+          <textarea
+            rows={3}
+            maxLength={500}
+            placeholder="Shown while you log this exercise"
+            value={draft.notes}
+            onInput={(event) => change({ notes: event.currentTarget.value })}
+          />
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" checked={draft.favorite} onChange={(event) => change({ favorite: event.currentTarget.checked })} />
+          Favorite (listed first)
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" checked={draft.archived} onChange={(event) => change({ archived: event.currentTarget.checked })} />
+          Archived (hidden from the list and pickers)
+        </label>
       </div>
       {error && <ErrorNotice message={error} />}
       {nameClash && (
