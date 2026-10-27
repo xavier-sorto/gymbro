@@ -111,6 +111,47 @@ describe('history filters and delete from the list', () => {
   });
 });
 
+describe('stats strip and compare to last time', () => {
+  /** A finished bench workout of one set at the given weight, started `daysAgo` days ago. */
+  async function benchAt(weightLb: number, daysAgo: number) {
+    const workout = await startWorkout(null);
+    const entry = await addWorkoutExercise(workout.id, SEED_BENCH);
+    await saveSet({ workoutExerciseId: entry.id, isWarmup: false, reps: 8, weightLb });
+    await finishWorkout(workout.id);
+    const startedAt = Date.now() - daysAgo * DAY;
+    await getDb().workouts.update(workout.id, { startedAt, finishedAt: startedAt + 45 * 60000 });
+    return workout;
+  }
+
+  it('shows this week\'s workouts, volume and the weekly streak', async () => {
+    await openStore();
+    await benchAt(100, 0);
+    window.location.hash = '#/history';
+    renderApp();
+    expect(await screen.findByText('800 lb')).toBeTruthy();
+    expect(screen.getByText('This week').nextElementSibling?.textContent).toBe('1');
+    expect(screen.getByText('Streak').nextElementSibling?.textContent).toBe('1 wk');
+  });
+
+  it('labels each exercise with its change since the previous time', async () => {
+    await openStore();
+    await benchAt(100, 10);
+    const latest = await benchAt(105, 3);
+    window.location.hash = `#/history/${latest.id}`;
+    renderApp();
+    expect(await screen.findByLabelText('Compared with last time: +5 lb')).toBeTruthy();
+  });
+
+  it('shows no label for the first time an exercise was done', async () => {
+    await openStore();
+    const only = await benchAt(100, 3);
+    window.location.hash = `#/history/${only.id}`;
+    renderApp();
+    await screen.findByLabelText('Edit set 1');
+    expect(document.querySelector('.exercise-block-change')).toBeNull();
+  });
+});
+
 describe('workout detail', () => {
   async function openDetail(withWarmup = false) {
     await openStore();

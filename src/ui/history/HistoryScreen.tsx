@@ -4,8 +4,9 @@ import { ConfirmSheet } from '../components/ConfirmSheet';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { SearchField } from '../components/SearchField';
 import { reportError } from '../errors';
+import { useLoad } from '../useLoad';
 import { HistoryRow } from './HistoryRow';
-import { deleteWorkoutMessage, loadHistoryPage, type HistoryRowData } from './historyData';
+import { deleteWorkoutMessage, loadHistoryPage, loadHistoryStats, type HistoryRowData } from './historyData';
 
 const monthOf = (row: HistoryRowData) =>
   new Date(row.workout.startedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -20,6 +21,7 @@ export function HistoryScreen() {
   const [dayType, setDayType] = useState('');
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState<HistoryRowData | null>(null);
+  const stats = useLoad('loading history stats', '', loadHistoryStats, []);
 
   const loadMore = async () => {
     setLoading(true);
@@ -45,6 +47,7 @@ export function HistoryScreen() {
     try {
       await deleteWorkout(row.workout.id);
       setRows((current) => current.filter((other) => other !== row));
+      stats.reload();
     } catch (failure) {
       setError(reportError('deleting a workout', failure, "Couldn't delete the workout. Try again."));
     }
@@ -72,6 +75,22 @@ export function HistoryScreen() {
       </header>
       {error && <ErrorNotice message={error} onRetry={loadMore} />}
       {loaded && rows.length === 0 && <p class="hint">No workouts yet: start one from Workout.</p>}
+      {stats.data && rows.length > 0 && (
+        <div class="detail-stats history-stats">
+          <div class="stat">
+            <div class="stat-key">This week</div>
+            <div class="detail-stat-value">{stats.data.weekWorkouts}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-key">Volume</div>
+            <div class="detail-stat-value">{stats.data.weekVolumeLb.toLocaleString('en-US')} lb</div>
+          </div>
+          <div class="stat">
+            <div class="stat-key">Streak</div>
+            <div class="detail-stat-value">{stats.data.streakWeeks} {stats.data.streakWeeks === 1 ? 'wk' : 'wks'}</div>
+          </div>
+        </div>
+      )}
       {rows.length > 0 && (
         <div class="history-filters">
           <SearchField value={query} onChange={setQuery} />

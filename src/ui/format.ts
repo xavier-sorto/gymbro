@@ -47,4 +47,11 @@ export function formatDuration(milliseconds: number): string {
   return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
 }
 
+/** "+5 lb", "-1 rep", "+2 reps", "+5 s" or "Same". */
+export function formatChange({ value, unit }: { value: number; unit: 'lb' | 'rep' | 's' }): string {
+  if (value === 0) return 'Same';
+  const word = unit === 'rep' ? (Math.abs(value) === 1 ? 'rep' : 'reps') : unit;
+  return `${value > 0 ? '+' : '-'}${Math.abs(value)} ${word}`;
+}
+
 export const pluralSets = (count: number) => `${count} ${count === 1 ? 'set' : 'sets'}`;

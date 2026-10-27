@@ -3,6 +3,7 @@
 .history-row { display: flex; align-items: center; gap: 14px; min-height: 76px; margin-bottom: 10px; padding: 12px 10px 12px 14px; border-radius: var(--radius); background: var(--surface); }
 .history-row > .icon { color: var(--faint); }
 .history-delete { flex: none; min-height: 40px; background: var(--danger-soft); color: var(--danger); font-weight: 700; }
+.history-stats { margin: 4px 0 12px; }
 .history-filters { display: grid; gap: 8px; margin: 6px 0 4px; }
 .history-date { width: 52px; flex: none; text-align: center; border-radius: 12px; background: var(--surface-2); padding: 6px 0; }
 .history-weekday { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
@@ -20,6 +21,8 @@
 .exercise-block { margin-top: 10px; padding: 12px 12px 8px; border-radius: var(--radius); background: var(--surface); }
 .exercise-block-head { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding: 0 4px; }
 .exercise-block-name { font-size: 17px; font-weight: 700; }
+.exercise-block-change { margin-left: auto; margin-right: 12px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.exercise-block-change.up { color: var(--accent); }
 .exercise-block-progress { font-size: 14px; color: var(--accent); font-weight: 600; }
 .detail-set { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; margin-top: 4px; padding: 0 14px; border-radius: 14px; background: var(--bg); text-align: left; }
 .detail-set-number { width: 26px; font-weight: 700; color: var(--faint); font-size: 15px; }

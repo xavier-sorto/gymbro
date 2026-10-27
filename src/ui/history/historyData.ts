@@ -1,8 +1,10 @@
+import { bestSoFar, compareBest, countingSessions, type BestChange } from '../../engine';
 import { getDb } from '../../store/db';
-import { listDayTypes, listExercises, listSets, listWorkouts } from '../../store';
+import { getExerciseHistory, listDayTypes, listExercises, listSets, listWorkouts } from '../../store';
 import type { Exercise, Workout, WorkoutExercise, WorkoutSet } from '../../store';
 import { listWorkoutEntries } from '../data/workoutData';
 import { formatWeekdayDate, pluralSets } from '../format';
+import { summarize, type HistoryStats } from './historyStats';
 
 export const HISTORY_PAGE_SIZE = 50;
 export const UNNAMED_WORKOUT = 'Workout';
@@ -25,6 +27,8 @@ export interface DetailExercise {
   entry: WorkoutExercise;
   exercise: Exercise | undefined;
   sets: WorkoutSet[];
+  /** Best set against the previous time the exercise was done, or null when there is nothing to compare. */
+  change: BestChange | null;
 }
 
 export interface WorkoutDetail {
@@ -45,6 +49,7 @@ async function loadExercisesWithSets(workoutId: string, allExercises: Exercise[]
       entry,
       exercise: allExercises.find((exercise) => exercise.id === entry.exerciseId),
       sets: await listSets(entry.id),
+      change: null,
     })),
   );
   return withSets.filter(({ sets }) => sets.length > 0);
@@ -72,6 +77,33 @@ export async function loadHistoryPage(before?: number): Promise<HistoryPage> {
   return { rows, hasMore: workouts.length === HISTORY_PAGE_SIZE };
 }
 
+/** This week's workouts and volume plus the weekly streak, from every finished workout. */
+export async function loadHistoryStats(now = Date.now()): Promise<HistoryStats> {
+  const db = getDb();
+  const workouts = await db.workouts.filter((workout) => !workout.deleted && workout.finishedAt !== null).toArray();
+  const volumeByWorkout = new Map<string, number>();
+  for (const set of await db.sets.filter((set) => !set.deleted && !set.isWarmup).toArray()) {
+    volumeByWorkout.set(set.workoutId, (volumeByWorkout.get(set.workoutId) ?? 0) + (set.weightLb ?? 0) * (set.reps ?? 0));
+  }
+  return summarize(
+    workouts.map((workout) => ({ startedAt: workout.startedAt, volumeLb: volumeByWorkout.get(workout.id) ?? 0 })),
+    now,
+  );
+}
+
+/** Past sessions looked at to find the one before this workout. */
+const COMPARE_SESSIONS = 500;
+
+async function changeSinceLast(workout: Workout, { exercise, sets }: DetailExercise): Promise<BestChange | null> {
+  if (!exercise) return null;
+  const { kind } = exercise;
+  const today = bestSoFar(countingSessions([{ workoutId: workout.id, startedAt: workout.startedAt, isMainLift: false, sets }], kind), kind);
+  const history = await getExerciseHistory(exercise.id, { sessions: COMPARE_SESSIONS });
+  const previous = history.find((session) => session.startedAt < workout.startedAt);
+  const before = previous && bestSoFar(countingSessions([previous], kind), kind);
+  return today && before ? compareBest(kind, today, before) : null;
+}
+
 export const MISSING_WORKOUT = 'missing';
 
 /** One finished workout with its exercises and sets, or MISSING_WORKOUT when it is gone, deleted or unfinished. */
@@ -82,6 +114,8 @@ export async function loadWorkoutDetail(workoutId: string): Promise<WorkoutDetai
   return {
     workout,
     title: dayTypes.find((dayType) => dayType.id === workout.dayTypeId)?.name ?? UNNAMED_WORKOUT,
-    exercises: await loadExercisesWithSets(workoutId, exercises),
+    exercises: await Promise.all(
+      (await loadExercisesWithSets(workoutId, exercises)).map(async (item) => ({ ...item, change: await changeSinceLast(workout, item) })),
+    ),
   };
 }

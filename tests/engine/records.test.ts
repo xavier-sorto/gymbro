@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { beatsBest, estimatedOneRepMax } from '../../src/engine/best';
+import { beatsBest, compareBest, estimatedOneRepMax } from '../../src/engine/best';
 import { toPlannedSet } from '../../src/engine/workingSets';
 
 const set = (weightLb: number | null, reps: number | null, seconds: number | null = null) =>
@@ -37,5 +37,21 @@ describe('estimatedOneRepMax', () => {
   it('uses the Epley formula, rounded to a whole pound', () => {
     expect(estimatedOneRepMax(100, 5)).toBe(117);
     expect(estimatedOneRepMax(225, 1)).toBe(225);
+  });
+});
+
+describe('compareBest', () => {
+  const before = { weightLb: 100, reps: 5, startedAt: 1 };
+
+  it('reports the weight change first, then the rep change at the same weight', () => {
+    expect(compareBest('weighted', { weightLb: 105, reps: 3, startedAt: 2 }, before)).toEqual({ value: 5, unit: 'lb' });
+    expect(compareBest('weighted', { weightLb: 95, reps: 9, startedAt: 2 }, before)).toEqual({ value: -5, unit: 'lb' });
+    expect(compareBest('weighted', { weightLb: 100, reps: 7, startedAt: 2 }, before)).toEqual({ value: 2, unit: 'rep' });
+    expect(compareBest('weighted', { weightLb: 100, reps: 5, startedAt: 2 }, before).value).toBe(0);
+  });
+
+  it('uses reps for bodyweight and seconds for timed', () => {
+    expect(compareBest('bodyweight', { reps: 12, startedAt: 2 }, { reps: 10, startedAt: 1 })).toEqual({ value: 2, unit: 'rep' });
+    expect(compareBest('timed', { seconds: 50, startedAt: 2 }, { seconds: 60, startedAt: 1 })).toEqual({ value: -10, unit: 's' });
   });
 });

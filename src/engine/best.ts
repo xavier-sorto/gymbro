@@ -53,6 +53,21 @@ export function beatsBest(
   return isBetter(score(kind, set), bar);
 }
 
+export interface BestChange {
+  value: number;
+  unit: 'lb' | 'rep' | 's';
+}
+
+/** How a best set differs from an earlier one: weight first for weighted lifts, then reps; 0 means the same. */
+export function compareBest(kind: ExerciseKind, now: Best, before: Best): BestChange {
+  if (kind === 'weighted') {
+    const lb = (now.weightLb ?? 0) - (before.weightLb ?? 0);
+    return lb !== 0 ? { value: lb, unit: 'lb' } : { value: (now.reps ?? 0) - (before.reps ?? 0), unit: 'rep' };
+  }
+  if (kind === 'bodyweight') return { value: (now.reps ?? 0) - (before.reps ?? 0), unit: 'rep' };
+  return { value: (now.seconds ?? 0) - (before.seconds ?? 0), unit: 's' };
+}
+
 /** Epley estimate of the heaviest single, in whole pounds. */
 export const estimatedOneRepMax = (weightLb: number, reps: number) =>
   reps <= 1 ? weightLb : Math.round(weightLb * (1 + reps / 30));

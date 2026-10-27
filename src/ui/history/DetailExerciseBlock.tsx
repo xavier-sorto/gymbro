@@ -1,5 +1,5 @@
 import type { Exercise, WorkoutSet } from '../../store';
-import { formatSet } from '../format';
+import { formatChange, formatSet } from '../format';
 import { progressHash } from '../router';
 import type { DetailExercise } from './historyData';
 
@@ -9,7 +9,7 @@ interface DetailExerciseBlockProps {
 }
 
 export function DetailExerciseBlock({ item, onEditSet }: DetailExerciseBlockProps) {
-  const { entry, exercise, sets } = item;
+  const { entry, exercise, sets, change } = item;
   const name = exercise?.name ?? 'Unknown exercise';
   return (
     <section class="exercise-block">
@@ -21,6 +21,11 @@ export function DetailExerciseBlock({ item, onEditSet }: DetailExerciseBlockProp
           </a>
         ) : (
           <span class="exercise-block-name">{name}</span>
+        )}
+        {change && (
+          <span class={`exercise-block-change${change.value > 0 ? ' up' : ''}`} aria-label={`Compared with last time: ${formatChange(change)}`}>
+            {formatChange(change)}
+          </span>
         )}
         {exercise && (
           <a class="exercise-block-progress" href={progressHash(exercise.id)}>
