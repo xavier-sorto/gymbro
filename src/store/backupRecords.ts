@@ -1,4 +1,5 @@
 import { ImportError, ValidationError } from './errors';
+import { validatedBodyweight } from './bodyweights';
 import { validateExerciseFields } from './exerciseRules';
 import { validateSetValues } from './setRules';
 import type { BackupData } from './backupFormat';
@@ -36,6 +37,8 @@ function checkExercise(record: Raw): void {
   if (record.nameKey !== cleaned.nameKey) throw new ValidationError('nameKey', 'does not match name');
   if (record.mergedInto !== null) requireText('mergedInto', record.mergedInto);
   requireBoolean('seed', record.seed);
+  if (record.notes !== undefined) requireTrimmedText('notes', record.notes, 0, 500);
+  for (const flag of ['favorite', 'archived']) if (record[flag] !== undefined) requireBoolean(flag, record[flag]);
 }
 
 function checkDayType(record: Raw): void {
@@ -51,6 +54,12 @@ function checkWorkout(record: Raw): void {
   if (record.dayTypeId !== null) requireText('dayTypeId', record.dayTypeId);
   requireNumber('startedAt', record.startedAt);
   requireNullableNumber('finishedAt', record.finishedAt);
+  if (record.note !== undefined) requireTrimmedText('note', record.note, 0, 500);
+}
+
+function checkBodyweight(record: Raw): void {
+  requireNumber('measuredAt', record.measuredAt);
+  validatedBodyweight('weightLb', record.weightLb);
 }
 
 function checkWorkoutExercise(record: Raw): void {
@@ -97,6 +106,7 @@ export function validateBackupData(data: unknown): BackupData {
     workouts: checkWorkout,
     workoutExercises: checkWorkoutExercise,
     sets: (record) => checkSet(record, kinds),
+    bodyweights: checkBodyweight,
   };
   for (const table of DATA_TABLE_NAMES) {
     recordsOf(raw, table).forEach((record, index) => {

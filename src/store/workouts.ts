@@ -1,8 +1,10 @@
 import { getDb } from './db';
 import { newId } from './ids';
 import { requireRecord } from './lookups';
+import { ValidationError } from './errors';
 import { liveSetsOf } from './liveSets';
 import type { Workout, WorkoutExercise } from './types';
+import { requireTrimmedText } from './validatePrimitives';
 import { writeTransaction } from './write';
 
 export function getActiveWorkout(): Promise<Workout | null> {
@@ -51,6 +53,26 @@ export function finishWorkout(id: string): Promise<Workout> {
   return writeTransaction(['workouts'], async (context) => {
     const workout = await requireRecord('workouts', id);
     return context.save('workouts', { ...workout, finishedAt: workout.finishedAt ?? Date.now() });
+  });
+}
+
+/**
+ * Changes when a workout happened and the note on it. Moving the start keeps the duration, so a
+ * finished workout's finish moves with it. The start cannot be in the future.
+ */
+export function updateWorkoutDetails(id: string, patch: { startedAt?: number; note?: string }): Promise<Workout> {
+  return writeTransaction(['workouts'], async (context) => {
+    const existing = await requireRecord('workouts', id);
+    const updated: Workout = { ...existing };
+    if (patch.startedAt !== undefined) {
+      if (!Number.isFinite(patch.startedAt) || patch.startedAt > Date.now()) {
+        throw new ValidationError('startedAt', 'must be a time that has already passed');
+      }
+      if (existing.finishedAt !== null) updated.finishedAt = existing.finishedAt + (patch.startedAt - existing.startedAt);
+      updated.startedAt = patch.startedAt;
+    }
+    if (patch.note !== undefined) updated.note = requireTrimmedText('note', patch.note, 0, 500);
+    return context.save('workouts', updated);
   });
 }
 

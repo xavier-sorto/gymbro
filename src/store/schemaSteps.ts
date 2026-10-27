@@ -21,6 +21,8 @@ export const SCHEMA_STEPS: SchemaStep[] = [
       outbox: '++seq, table',
     },
   },
+  // Version 2: weigh-ins. The new optional fields on exercises and workouts need no upgrade.
+  { version: 2, stores: { bodyweights: 'id, measuredAt, updatedAt' } },
 ];
 
 export function latestVersion(steps: SchemaStep[]): number {

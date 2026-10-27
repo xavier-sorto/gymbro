@@ -10,6 +10,9 @@ import {
 } from '../../src/store';
 import { getDb } from '../../src/store/db';
 import { SCHEMA_STEPS } from '../../src/store/schemaSteps';
+
+/** Version 1 alone: these tests invent their own later versions to exercise the migration machinery. */
+const V1_STEPS = SCHEMA_STEPS.slice(0, 1);
 import * as snapshots from '../../src/store/snapshots';
 
 const addTagField: SchemaStep = {
@@ -26,7 +29,7 @@ const failingUpgrade: SchemaStep = {
 };
 
 async function seededV1(): Promise<number> {
-  await openStore();
+  await openStore({ schemaSteps: V1_STEPS });
   const count = (await listExercises()).length;
   closeStore();
   return count;
@@ -35,7 +38,7 @@ async function seededV1(): Promise<number> {
 describe('migration safety', () => {
   it('snapshots the old version first, then upgrades and keeps all data', async () => {
     const count = await seededV1();
-    await openStore({ schemaSteps: [...SCHEMA_STEPS, addTagField] });
+    await openStore({ schemaSteps: [...V1_STEPS, addTagField] });
 
     const snapshot = await snapshots.readSnapshot(1);
     expect(snapshot?.tables.exercises).toHaveLength(count);
@@ -47,7 +50,7 @@ describe('migration safety', () => {
 
   it('keeps v1 data and throws MigrationError when the upgrade fails', async () => {
     const count = await seededV1();
-    const error = await openStore({ schemaSteps: [...SCHEMA_STEPS, failingUpgrade] }).catch((e: unknown) => e);
+    const error = await openStore({ schemaSteps: [...V1_STEPS, failingUpgrade] }).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(MigrationError);
     expect(error).toMatchObject({ fromVersion: 1 });
     expect(await snapshots.readSnapshot(1)).toBeDefined();
@@ -59,18 +62,18 @@ describe('migration safety', () => {
   it('stops without touching data when the snapshot cannot be saved', async () => {
     await seededV1();
     vi.spyOn(snapshots, 'saveSnapshot').mockRejectedValue(new Error('disk full'));
-    await expect(openStore({ schemaSteps: [...SCHEMA_STEPS, addTagField] })).rejects.toBeInstanceOf(MigrationError);
+    await expect(openStore({ schemaSteps: [...V1_STEPS, addTagField] })).rejects.toBeInstanceOf(MigrationError);
   });
 
   it('keeps only the last two snapshots', async () => {
     await seededV1();
     const v3: SchemaStep = { version: 3, stores: {} };
     const v4: SchemaStep = { version: 4, stores: {} };
-    await openStore({ schemaSteps: [...SCHEMA_STEPS, addTagField] });
+    await openStore({ schemaSteps: [...V1_STEPS, addTagField] });
     closeStore();
-    await openStore({ schemaSteps: [...SCHEMA_STEPS, addTagField, v3] });
+    await openStore({ schemaSteps: [...V1_STEPS, addTagField, v3] });
     closeStore();
-    await openStore({ schemaSteps: [...SCHEMA_STEPS, addTagField, v3, v4] });
+    await openStore({ schemaSteps: [...V1_STEPS, addTagField, v3, v4] });
     expect(await snapshots.readSnapshot(1)).toBeUndefined();
     expect(await snapshots.readSnapshot(2)).toBeDefined();
     expect(await snapshots.readSnapshot(3)).toBeDefined();
@@ -78,7 +81,10 @@ describe('migration safety', () => {
 
   it('an older app on newer data gets DataNewerThanAppError and can restore from the snapshot', async () => {
     const count = await seededV1();
-    await openStore({ schemaSteps: [...SCHEMA_STEPS, addTagField] });
+    // data written by a newer app (version 3) than this one (version 2), after passing through version 2
+    await openStore({ schemaSteps: [...V1_STEPS, addTagField] });
+    closeStore();
+    await openStore({ schemaSteps: [...V1_STEPS, addTagField, { version: 3, stores: {} }] });
     await getDb().exercises.put({ ...(await getDb().exercises.toCollection().first())!, id: 'added-after-update' });
     closeStore();
 

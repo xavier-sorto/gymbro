@@ -9,6 +9,7 @@ import {
 import { newId } from './ids';
 import { requireRecord } from './lookups';
 import { editDistance, toNameKey } from './text';
+import { requireTrimmedText } from './validatePrimitives';
 import type { Exercise } from './types';
 import { writeTransaction } from './write';
 
@@ -70,12 +71,29 @@ export async function createExercise(input: ExerciseInput): Promise<Exercise> {
   });
 }
 
-export async function updateExercise(id: string, patch: Partial<ExerciseFields>): Promise<Exercise> {
+export interface ExerciseExtras {
+  notes?: string;
+  favorite?: boolean;
+  archived?: boolean;
+}
+
+function validatedExtras(patch: ExerciseExtras): ExerciseExtras {
+  const extras: ExerciseExtras = {};
+  if (patch.notes !== undefined) extras.notes = requireTrimmedText('notes', patch.notes, 0, 500);
+  for (const flag of ['favorite', 'archived'] as const) {
+    if (patch[flag] === undefined) continue;
+    if (typeof patch[flag] !== 'boolean') throw new ValidationError(flag, 'must be true or false');
+    extras[flag] = patch[flag];
+  }
+  return extras;
+}
+
+export async function updateExercise(id: string, patch: Partial<ExerciseFields> & ExerciseExtras): Promise<Exercise> {
   return writeTransaction(['exercises'], async (context) => {
     const existing = await requireRecord('exercises', id);
     const fields = validateExerciseFields({ ...existing, ...patch });
     if (fields.nameKey !== existing.nameKey) await assertNameFree(fields.nameKey, id);
-    return context.save('exercises', { ...existing, ...fields });
+    return context.save('exercises', { ...existing, ...fields, ...validatedExtras(patch) });
   });
 }
 

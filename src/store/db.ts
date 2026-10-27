@@ -1,7 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import { StoreUnavailableError } from './errors';
 import { SCHEMA_STEPS, type SchemaStep } from './schemaSteps';
-import type { DayType, Exercise, MetaRow, OutboxRow, Workout, WorkoutExercise, WorkoutSet } from './types';
+import type { Bodyweight, DayType, Exercise, MetaRow, OutboxRow, Workout, WorkoutExercise, WorkoutSet } from './types';
 
 export const DATABASE_NAME = 'gymbro';
 
@@ -11,6 +11,7 @@ export class GymBroDatabase extends Dexie {
   workouts!: Table<Workout, string>;
   workoutExercises!: Table<WorkoutExercise, string>;
   sets!: Table<WorkoutSet, string>;
+  bodyweights!: Table<Bodyweight, string>;
   meta!: Table<MetaRow, string>;
   outbox!: Table<OutboxRow, number>;
 

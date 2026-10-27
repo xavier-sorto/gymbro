@@ -10,6 +10,7 @@ export * from './workouts';
 export * from './workoutExercises';
 export * from './sets';
 export * from './history';
+export * from './bodyweights';
 export { exportBackup } from './exportBackup';
 export { importBackup } from './importBackup';
 export { exportSetsCsv } from './exportSetsCsv';

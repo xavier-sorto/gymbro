@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ImportError, exportBackup, importBackup, openStore } from '../../src/store';
 import { getDb } from '../../src/store/db';
 import { readAllData } from '../../src/store/readAllData';
-import { DATA_TABLE_NAMES } from '../../src/store/types';
+import { DATA_TABLE_NAMES, SCHEMA_VERSION } from '../../src/store/types';
 import { SEED_BENCH, SEED_PUSH, finishedWorkoutWith, outboxCount } from './helpers';
 
 async function expectImportError(file: Blob, reason: string, table?: string) {
@@ -43,7 +43,7 @@ describe('backup file', () => {
     await getDb().sets.put(deleted);
     const parsed = JSON.parse(await (await exportBackup()).text());
     expect(parsed.data.sets.find((s: { id: string }) => s.id === deleted.id).deleted).toBe(true);
-    expect(parsed).toMatchObject({ app: 'gymbro', schemaVersion: 1 });
+    expect(parsed).toMatchObject({ app: 'gymbro', schemaVersion: SCHEMA_VERSION });
   });
 
   it('refuses a file that is not a GymBro backup', async () => {
