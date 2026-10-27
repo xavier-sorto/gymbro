@@ -4,6 +4,7 @@ import type { Workout } from '../store';
 import { AppContext } from './AppContext';
 import { BottomBar } from './components/BottomBar';
 import { reportError } from './errors';
+import { ProgressChartScreen } from './progress-chart/ProgressChartScreen';
 import { RestTimerBar } from './rest/RestTimerBar';
 import { navigate, needsActiveWorkout, parseRoute, useRoute, type Route } from './router';
 import { AddExerciseScreen } from './screens/AddExerciseScreen';
@@ -37,6 +38,8 @@ function ScreenFor({ route }: { route: Route }) {
       return <HistoryScreen />;
     case 'historyDetail':
       return <WorkoutDetailScreen key={route.workoutId} workoutId={route.workoutId} />;
+    case 'progress':
+      return <ProgressChartScreen key={route.exerciseId} exerciseId={route.exerciseId} />;
     case 'library':
       return <LibraryScreen />;
     case 'libraryExercise':

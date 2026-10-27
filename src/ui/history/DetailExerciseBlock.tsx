@@ -1,8 +1,7 @@
 import type { Exercise, WorkoutSet } from '../../store';
 import { formatSet } from '../format';
+import { progressHash } from '../router';
 import type { DetailExercise } from './historyData';
-
-export const progressHash = (exerciseId: string) => `#/progress/${encodeURIComponent(exerciseId)}`;
 
 interface DetailExerciseBlockProps {
   item: DetailExercise;
