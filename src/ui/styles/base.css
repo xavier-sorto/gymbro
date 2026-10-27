@@ -53,5 +53,6 @@ a.link-button { display: inline-flex; align-items: center; min-height: 48px; }
 .field-error { color: var(--danger); margin: 4px 0; font-size: 15px; }
 .error-notice { border: 1px solid var(--danger); background: var(--danger-soft); border-radius: 16px; padding: 10px 14px; margin: 8px 0; }
 .notice, .toast { display: flex; align-items: center; gap: 10px; padding: 14px 16px; margin: 8px 0 14px; border-radius: 16px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.update-banner { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 0; right: 0; margin: 0 auto; width: min(calc(var(--column) - 24px), calc(100% - 24px)); z-index: 30; min-height: 48px; background: var(--accent); color: var(--accent-ink); font-weight: 700; border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
 .progress { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin: 6px 0 14px; }
 .progress i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.3s; }

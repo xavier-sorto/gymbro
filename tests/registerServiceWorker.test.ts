@@ -21,6 +21,31 @@ describe('registerServiceWorker', () => {
     expect(heard).toHaveBeenCalledOnce();
   });
 
+  it('hands the update function to listeners and returns it', () => {
+    const update = async () => {};
+    const target = new EventTarget();
+    let detail: unknown;
+    target.addEventListener(UPDATE_READY_EVENT, (event) => (detail = (event as CustomEvent).detail));
+    let options: Parameters<RegisterSw>[0] = {};
+    const returned = registerServiceWorker((given) => {
+      options = given;
+      return update;
+    }, target);
+    options.onNeedRefresh?.();
+    expect(detail).toBe(update);
+    expect(returned).toBe(update);
+  });
+
+  it('checks for a new version whenever the app returns to view', () => {
+    const { register, options } = capture();
+    const target = new EventTarget();
+    const registration = { update: vi.fn(async () => {}) };
+    registerServiceWorker(register, target);
+    options().onRegisteredSW?.('sw.js', registration);
+    target.dispatchEvent(new Event('visibilitychange'));
+    expect(registration.update).toHaveBeenCalledOnce();
+  });
+
   it('logs a registration failure with an actionable message', () => {
     const { register, options } = capture();
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
