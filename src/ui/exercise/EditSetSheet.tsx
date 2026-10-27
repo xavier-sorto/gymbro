@@ -14,9 +14,11 @@ interface EditSetSheetProps {
   onClose: () => void;
   /** Called after the set was changed or deleted. */
   onChanged: () => void;
+  /** Called after the set was deleted, before onChanged, so the screen can offer an Undo. */
+  onDeleted?: (set: WorkoutSet) => void;
 }
 
-export function EditSetSheet({ set, exercise, onClose, onChanged }: EditSetSheetProps) {
+export function EditSetSheet({ set, exercise, onClose, onChanged, onDeleted }: EditSetSheetProps) {
   const [draft, setDraft] = useState<SetDraft>(() => draftFromPlan({ ...set, role: 'working' }, exercise));
   const [failure, setFailure] = useState<SaveFailure | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export function EditSetSheet({ set, exercise, onClose, onChanged }: EditSetSheet
   const remove = async () => {
     try {
       await deleteSet(set.id);
+      onDeleted?.(set);
       onChanged();
     } catch (error) {
       setDeleteError(reportError('deleting a set', error, "Couldn't delete the set. Try again."));

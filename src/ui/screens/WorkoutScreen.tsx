@@ -1,12 +1,13 @@
 import { useState } from 'preact/hooks';
 import { muscleGaps, musclesOf, type MuscleGap } from '../../engine';
-import { getDayType, listExercises, listSets, removeWorkoutExercise, updateWorkoutExercise } from '../../store';
+import { getDayType, listExercises, listSets, removeWorkoutExercise, swapWorkoutExercise, updateWorkoutExercise } from '../../store';
 import type { Exercise, WorkoutExercise, WorkoutSet } from '../../store';
 import { useActiveWorkout } from '../AppContext';
 import { ConfirmSheet } from '../components/ConfirmSheet';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
 import { ProgressBar } from '../components/ProgressBar';
+import { Sheet } from '../components/Sheet';
 import { listWorkoutEntries } from '../data/workoutData';
 import { reportError } from '../errors';
 import { formatDuration } from '../format';
@@ -18,6 +19,7 @@ import { loadWeeklyVolume } from '../volume/volumeData';
 import { useNow } from '../useNow';
 import { useLoad } from '../useLoad';
 import { ExerciseCard } from './ExerciseCard';
+import { ExercisePicker } from './ExercisePicker';
 import { FinishWorkoutButton } from './FinishWorkoutButton';
 
 interface WorkoutView {
@@ -61,6 +63,7 @@ export function WorkoutScreen() {
   const view = useLoad('loading the workout', "Couldn't load this workout.", () => loadWorkoutView(workout.id, workout.dayTypeId), [workout.id]);
   const [actionError, setActionError] = useState<string | null>(null);
   const [removing, setRemoving] = useState<WorkoutExercise | null>(null);
+  const [swapping, setSwapping] = useState<WorkoutExercise | null>(null);
 
   const run = async (what: string, action: () => Promise<unknown>) => {
     try {
@@ -81,6 +84,15 @@ export function WorkoutScreen() {
       await updateWorkoutExercise(first.entry.id, { order: second.entry.order });
       await updateWorkoutExercise(second.entry.id, { order: first.entry.order });
     });
+  };
+
+  /** Throws on failure so the picker can show it. */
+  const swap = async (exerciseId: string) => {
+    if (!swapping) return;
+    await swapWorkoutExercise(swapping.id, exerciseId);
+    setSwapping(null);
+    setActionError(null);
+    view.reload();
   };
 
   const rows = view.data?.rows ?? [];
@@ -112,6 +124,7 @@ export function WorkoutScreen() {
           onOpen={() => navigate(exerciseHash(entry.id))}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
           onMoveDown={index < rows.length - 1 ? () => move(index, 1) : undefined}
+          onSwap={sets.length === 0 ? () => setSwapping(entry) : undefined}
           onRemove={() => askRemove(entry, sets.length)}
         />
       ))}
@@ -120,6 +133,11 @@ export function WorkoutScreen() {
         Add exercise
       </button>
       <FinishWorkoutButton variant="big" />
+      {swapping && (
+        <Sheet title="Swap exercise" onClose={() => setSwapping(null)}>
+          <ExercisePicker onPick={swap} onCreated={(exercise) => swap(exercise.id)} />
+        </Sheet>
+      )}
       {removing && (
         <ConfirmSheet
           title="Remove exercise"

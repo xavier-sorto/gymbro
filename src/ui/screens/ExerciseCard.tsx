@@ -10,6 +10,8 @@ interface ExerciseCardProps {
   onOpen: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  /** Offered only while the exercise has no sets. */
+  onSwap?: () => void;
   onRemove: () => void;
 }
 
@@ -20,7 +22,7 @@ function setsSummary(sets: WorkoutSet[]): string {
   return warmups > 0 ? `${pluralSets(working)}, ${warmups} warm-up` : pluralSets(working);
 }
 
-export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDown, onRemove }: ExerciseCardProps) {
+export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDown, onSwap, onRemove }: ExerciseCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const done = sets.some((set) => !set.isWarmup);
   const chooseMenuItem = (action: () => void) => () => {
@@ -48,6 +50,7 @@ export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDo
         <div class="card-menu">
           {onMoveUp && <button type="button" onClick={chooseMenuItem(onMoveUp)}>Move up</button>}
           {onMoveDown && <button type="button" onClick={chooseMenuItem(onMoveDown)}>Move down</button>}
+          {onSwap && <button type="button" onClick={chooseMenuItem(onSwap)}>Swap exercise</button>}
           <button type="button" onClick={chooseMenuItem(onRemove)}>Remove</button>
         </div>
       )}

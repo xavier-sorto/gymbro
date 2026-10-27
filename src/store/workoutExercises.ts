@@ -45,6 +45,16 @@ export function updateWorkoutExercise(id: string, patch: WorkoutExercisePatch): 
   });
 }
 
+/** Replaces the exercise in a workout entry. Only while it has no sets, so no set ends up under the wrong exercise. */
+export function swapWorkoutExercise(id: string, exerciseId: string): Promise<WorkoutExercise> {
+  return writeTransaction(['workoutExercises', 'sets', 'exercises'], async (context) => {
+    const existing = await requireRecord('workoutExercises', id);
+    await requireRecord('exercises', exerciseId);
+    if ((await liveSetsOf([id])).length > 0) throw new ValidationError('exerciseId', 'cannot be changed once sets are logged');
+    return context.save('workoutExercises', { ...existing, exerciseId });
+  });
+}
+
 export function removeWorkoutExercise(id: string): Promise<WorkoutExercise> {
   return writeTransaction(['workoutExercises', 'sets'], async (context) => {
     const existing = await requireRecord('workoutExercises', id);
