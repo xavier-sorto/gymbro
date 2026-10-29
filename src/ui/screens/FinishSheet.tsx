@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { finishWorkout, listSets } from '../../store';
+import { deleteWorkout, finishWorkout, listSets } from '../../store';
 import { useActiveWorkout, useApp } from '../AppContext';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Sheet } from '../components/Sheet';
@@ -39,6 +39,20 @@ export function FinishSheet({ onClose }: { onClose: () => void }) {
     }
   };
 
+  /** Nothing was logged, so there is nothing to keep unless the owner says so. */
+  const discard = async () => {
+    try {
+      await deleteWorkout(workout.id);
+      skipRest();
+      navigate('#/');
+      await refreshActive();
+    } catch (error) {
+      setFinishError(reportError('discarding the workout', error, "Couldn't discard the workout. Try again."));
+    }
+  };
+
+  const empty = summary.data !== null && summary.data.workingSets === 0;
+
   return (
     <Sheet title="Finish workout" onClose={onClose}>
       {summary.error && <ErrorNotice message={summary.error} onRetry={summary.reload} />}
@@ -48,10 +62,22 @@ export function FinishSheet({ onClose }: { onClose: () => void }) {
           {formatDuration(Date.now() - workout.startedAt)}
         </p>
       )}
+      {empty && <p>No sets were logged, so there is nothing to save.</p>}
       {finishError && <ErrorNotice message={finishError} />}
-      <button type="button" class="primary-button" onClick={finish}>
-        Finish
-      </button>
+      {empty ? (
+        <>
+          <button type="button" class="danger-button" onClick={discard}>
+            Discard workout
+          </button>
+          <button type="button" class="big-button secondary" onClick={finish}>
+            Save it anyway
+          </button>
+        </>
+      ) : (
+        <button type="button" class="primary-button" onClick={finish}>
+          Finish
+        </button>
+      )}
     </Sheet>
   );
 }

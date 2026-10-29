@@ -1,9 +1,11 @@
+import { MUSCLE_LABELS } from '../../engine';
 import { ErrorNotice } from '../components/ErrorNotice';
-import { formatChange, formatDuration, formatSet, formatTime, formatWeekdayDate } from '../format';
+import { formatChange, formatDuration, formatSet, formatSets, formatTime, formatWeekdayDate } from '../format';
 import { MISSING_WORKOUT, loadWorkoutSummary } from '../history/historyData';
 import { historyHash, navigate } from '../router';
 import { useLoad } from '../useLoad';
 
+const sets = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
 const pounds = (value: number) => `${Math.round(value).toLocaleString('en-US')} lb`;
 
 /** The screen after Finish: what the workout added up to, how it compares, and any records. */
@@ -13,7 +15,7 @@ export function SummaryScreen({ workoutId }: { workoutId: string }) {
   const { workout, title, exercises } = summary?.detail ?? {};
   const records = exercises?.filter((item) => item.isRecord) ?? [];
   const progressed = exercises?.filter((item) => !item.isRecord && item.change && item.change.value > 0) ?? [];
-  const volumeChange = summary?.previous && summary.previous.volumeLb > 0 ? summary.volumeLb - summary.previous.volumeLb : null;
+  const volumeChange = summary && summary.workingSets > 0 && summary.previous && summary.previous.volumeLb > 0 ? summary.volumeLb - summary.previous.volumeLb : null;
 
   return (
     <main class="screen">
@@ -21,10 +23,9 @@ export function SummaryScreen({ workoutId }: { workoutId: string }) {
       {loaded.data === MISSING_WORKOUT && <p class="hint">This workout isn't finished or isn't in your history any more.</p>}
       {summary && workout && (
         <>
-          <p class="eyebrow">Workout saved</p>
-          <h1 class="h1">{title}</h1>
+          <h1 class="h1">Workout saved</h1>
           <p class="hint summary-when">
-            {formatWeekdayDate(workout.startedAt)} · {formatTime(workout.startedAt).toLowerCase()}
+            {title} · {formatWeekdayDate(workout.startedAt)} · {formatTime(workout.startedAt).toLowerCase()}
           </p>
           <div class="detail-stats">
             <div class="stat">
@@ -66,6 +67,30 @@ export function SummaryScreen({ workoutId }: { workoutId: string }) {
                 <div class="summary-row" key={item.entry.id}>
                   <span>{item.exercise?.name}</span>
                   <span class="up">{item.change && formatChange(item.change)}</span>
+                </div>
+              ))}
+            </section>
+          )}
+          {summary.nextTime.length > 0 && (
+            <section class="summary-card">
+              <h2 class="section-label">Next time</h2>
+              {summary.nextTime.map((line) => (
+                <div class="summary-row" key={line.name}>
+                  <span>{line.name}</span>
+                  <span>{formatSets(line.kind, line.target)}</span>
+                </div>
+              ))}
+            </section>
+          )}
+          {summary.week.length > 0 && (
+            <section class="summary-card">
+              <h2 class="section-label">This week</h2>
+              {summary.week.map((line) => (
+                <div class="summary-row" key={line.muscle}>
+                  <span>{MUSCLE_LABELS[line.muscle]}</span>
+                  <span class={line.sets >= line.goal ? 'up' : ''}>
+                    {sets(line.sets)} of {line.goal}
+                  </span>
                 </div>
               ))}
             </section>

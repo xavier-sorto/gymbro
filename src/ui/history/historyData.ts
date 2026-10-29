@@ -1,9 +1,11 @@
-import { bestSoFar, compareBest, countingSessions, type Best, type BestChange } from '../../engine';
+import { bestSoFar, compareBest, countingSessions, getGuide, musclesOf, targetFor, type Best, type BestChange, type Muscle, type PlannedSet } from '../../engine';
 import { getDb } from '../../store/db';
 import { getExerciseHistory, listExercises, listSets, listWorkouts } from '../../store';
 import type { Exercise, Workout, WorkoutExercise, WorkoutSet } from '../../store';
 import { listWorkoutEntries } from '../data/workoutData';
 import { formatWeekdayDate, pluralSets } from '../format';
+import { getSettings } from '../settings/settings';
+import { loadWeeklyVolume } from '../volume/volumeData';
 import { summarize, type HistoryStats } from './historyStats';
 
 export const HISTORY_PAGE_SIZE = 50;
@@ -140,8 +142,25 @@ export async function loadWorkoutDetail(workoutId: string): Promise<WorkoutDetai
 export const volumeOf = (sets: readonly WorkoutSet[]) =>
   sets.filter((set) => !set.isWarmup).reduce((total, set) => total + (set.weightLb ?? 0) * (set.reps ?? 0), 0);
 
+export interface NextTimeLine {
+  name: string;
+  kind: Exercise['kind'];
+  /** The sets the guide will suggest the next time this exercise is done. */
+  target: PlannedSet[];
+}
+
+export interface WeekLine {
+  muscle: Muscle;
+  /** Working sets so far in the workout's week, this workout included. */
+  sets: number;
+  /** The low end of the weekly range. */
+  goal: number;
+}
+
 export interface WorkoutSummary {
   detail: WorkoutDetail;
+  nextTime: NextTimeLine[];
+  week: WeekLine[];
   workingSets: number;
   volumeLb: number;
   /** The workout of the same day type before this one, for comparing volume. */
@@ -151,6 +170,44 @@ export interface WorkoutSummary {
 async function volumeOfWorkout(workoutId: string): Promise<number> {
   const entries = await listWorkoutEntries(workoutId);
   return volumeOf((await Promise.all(entries.map((entry) => listSets(entry.id)))).flat());
+}
+
+async function nextTimeLines(exercises: readonly DetailExercise[]): Promise<NextTimeLine[]> {
+  const lines = await Promise.all(
+    exercises.map(async ({ exercise, sets }): Promise<NextTimeLine[]> => {
+      if (!exercise || countWorking(sets) === 0) return [];
+      try {
+        const guide = getGuide(exercise, await getExerciseHistory(exercise.id), { isMainLift: false, warmups: false });
+        return guide.target ? [{ name: exercise.name, kind: exercise.kind, target: guide.target.sets }] : [];
+      } catch (error) {
+        console.error('GymBro: could not work out next time for the summary', error);
+        return [];
+      }
+    }),
+  );
+  return lines.flat();
+}
+
+/** The muscles this workout trained, with how far each is toward its weekly range, furthest behind first. */
+async function weekLines(exercises: readonly DetailExercise[], startedAt: number): Promise<WeekLine[]> {
+  try {
+    const trained = new Set<Muscle>(
+      exercises.flatMap(({ exercise, sets }) => {
+        const primary = exercise && countWorking(sets) > 0 ? musclesOf(exercise).primary : null;
+        return primary ? [primary] : [];
+      }),
+    );
+    if (trained.size === 0) return [];
+    const volume = await loadWeeklyVolume(0, startedAt);
+    const scale = getSettings().volumeTargets;
+    return [...trained]
+      .map((muscle) => ({ muscle, sets: volume.byMuscle[muscle].sets, goal: targetFor(muscle, scale).low }))
+      .sort((a, b) => b.goal - b.sets - (a.goal - a.sets))
+      .slice(0, 4);
+  } catch (error) {
+    console.error('GymBro: could not work out the weekly progress for the summary', error);
+    return [];
+  }
 }
 
 /** A finished workout's totals, how its volume compares with last time, and its records. */
@@ -170,6 +227,8 @@ export async function loadWorkoutSummary(workoutId: string): Promise<WorkoutSumm
           .first();
   return {
     detail,
+    nextTime: await nextTimeLines(detail.exercises),
+    week: await weekLines(detail.exercises, workout.startedAt),
     workingSets: countWorking(sets),
     volumeLb: volumeOf(sets),
     previous: earlier ? { startedAt: earlier.startedAt, volumeLb: await volumeOfWorkout(earlier.id) } : null,
