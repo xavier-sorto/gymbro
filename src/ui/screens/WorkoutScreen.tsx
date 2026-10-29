@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
-import { muscleGaps, musclesOf, type MuscleGap } from '../../engine';
-import { getDayType, listExercises, listSets, removeWorkoutExercise, swapWorkoutExercise, updateWorkoutExercise } from '../../store';
+import { getGuide, muscleGaps, musclesOf, type MuscleGap } from '../../engine';
+import { getDayType, getExerciseHistory, listExercises, listSets, removeWorkoutExercise, swapWorkoutExercise, updateWorkoutExercise } from '../../store';
 import type { Exercise, WorkoutExercise, WorkoutSet } from '../../store';
 import { useActiveWorkout } from '../AppContext';
 import { ConfirmSheet } from '../components/ConfirmSheet';
@@ -10,7 +10,7 @@ import { ProgressBar } from '../components/ProgressBar';
 import { Sheet } from '../components/Sheet';
 import { listWorkoutEntries } from '../data/workoutData';
 import { reportError } from '../errors';
-import { formatDuration } from '../format';
+import { formatDuration, formatSets } from '../format';
 import { fractionOf } from '../progress';
 import { exerciseHash, navigate } from '../router';
 import { getSettings } from '../settings/settings';
@@ -24,7 +24,7 @@ import { FinishWorkoutButton } from './FinishWorkoutButton';
 
 interface WorkoutView {
   title: string;
-  rows: { entry: WorkoutExercise; exercise: Exercise | undefined; sets: WorkoutSet[] }[];
+  rows: { entry: WorkoutExercise; exercise: Exercise | undefined; sets: WorkoutSet[]; hint?: string }[];
   /** Sets this week still needs for the muscles in this workout; empty if they could not be worked out. */
   needs: MuscleGap[];
 }
@@ -42,7 +42,20 @@ async function loadWorkoutView(workoutId: string, dayTypeId: string | null): Pro
       sets: await listSets(entry.id),
     })),
   );
-  return { title: dayType?.name ?? 'Workout', rows, needs: await loadNeeds(rows.map((row) => row.exercise)) };
+  const hinted = await Promise.all(rows.map(async (row) => (row.sets.some((set) => !set.isWarmup) ? row : { ...row, hint: await todayHint(row.entry, row.exercise) })));
+  return { title: dayType?.name ?? 'Workout', rows: hinted, needs: await loadNeeds(rows.map((row) => row.exercise)) };
+}
+
+/** "Today 105 × 6, 6": what the exercise is aiming for, or undefined the first time or if it cannot be worked out. */
+async function todayHint(entry: WorkoutExercise, exercise: Exercise | undefined): Promise<string | undefined> {
+  if (!exercise) return undefined;
+  try {
+    const guide = getGuide(exercise, await getExerciseHistory(exercise.id), { isMainLift: entry.isMainLift, warmups: false });
+    return guide.target ? `Today ${formatSets(exercise.kind, guide.target.sets)}` : undefined;
+  } catch (error) {
+    console.error('GymBro: could not work out the target for a workout card', error);
+    return undefined;
+  }
 }
 
 /** The weekly-volume gaps for the main muscles of these exercises, biggest first. Never fails the workout screen. */
@@ -115,12 +128,13 @@ export function WorkoutScreen() {
       {view.error && <ErrorNotice message={view.error} onRetry={view.reload} />}
       {actionError && <ErrorNotice message={actionError} />}
       {view.data && rows.length === 0 && <p class="hint">Add your first exercise</p>}
-      {rows.map(({ entry, exercise, sets }, index) => (
+      {rows.map(({ entry, exercise, sets, hint }, index) => (
         <ExerciseCard
           key={entry.id}
           entry={entry}
           exercise={exercise}
           sets={sets}
+          hint={hint}
           onOpen={() => navigate(exerciseHash(entry.id))}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
           onMoveDown={index < rows.length - 1 ? () => move(index, 1) : undefined}
@@ -132,7 +146,7 @@ export function WorkoutScreen() {
         <Icon name="plus" />
         Add exercise
       </button>
-      <FinishWorkoutButton variant="big" />
+      <FinishWorkoutButton variant="big" ready={doneCount > 0} />
       {swapping && (
         <Sheet title="Swap exercise" onClose={() => setSwapping(null)}>
           <ExercisePicker onPick={swap} onCreated={(exercise) => swap(exercise.id)} />

@@ -44,6 +44,9 @@ body:has(.rest-bar) .screen:has(> .next-set) { padding-bottom: calc(var(--bottom
 }
 body:has(.rest-bar) .screen > .next-set { bottom: calc(var(--bottom-bar) + var(--safe-bottom) + var(--rest-height)); }
 .next-set .field-error { margin: 0; }
+.next-set-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.next-set-next { display: inline-flex; align-items: center; gap: 2px; max-width: 62%; min-height: 44px; padding: 0 4px; }
+.next-set-next span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .next-set-today { margin: 0; font-size: 14px; font-weight: 700; color: var(--muted); text-align: center; }
 .next-set-failed { border: 2px solid var(--danger); }
 .stepper-field { min-width: 0; margin: 0; padding: 8px; border-radius: 18px; background: var(--bg); text-align: center; }

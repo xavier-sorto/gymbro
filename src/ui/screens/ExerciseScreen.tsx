@@ -13,7 +13,7 @@ import { GuidePanel } from '../exercise/GuidePanel';
 import { LoggedSets } from '../exercise/LoggedSets';
 import { NextSetRow } from '../exercise/NextSetRow';
 import { useExerciseLog } from '../exercise/useExerciseLog';
-import { navigate } from '../router';
+import { exerciseHash, navigate } from '../router';
 
 /** "Today 60 × 7, 7, 6 · One more rep": the target, kept in the logger so it never scrolls out of sight. */
 function todayLine(kind: ExerciseKind, guide: Guide, status: GuideStatus): string | undefined {
@@ -50,6 +50,7 @@ export function ExerciseScreen({ workoutExerciseId }: { workoutExerciseId: strin
             onChange={log.changeDraft}
             onSave={log.save}
             today={todayLine(data.exercise.kind, data.guide, data.guideStatus)}
+            next={data.next ? { label: data.next.name, onGo: () => navigate(exerciseHash(data.next!.entryId)) } : undefined}
             heightVar="--logger-height"
           />
           {editing && (

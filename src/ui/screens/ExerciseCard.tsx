@@ -10,19 +10,21 @@ interface ExerciseCardProps {
   onOpen: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  /** Shown while no sets are logged, e.g. today's target. */
+  hint?: string;
   /** Offered only while the exercise has no sets. */
   onSwap?: () => void;
   onRemove: () => void;
 }
 
-function setsSummary(sets: WorkoutSet[]): string {
+function setsSummary(sets: WorkoutSet[], hint?: string): string {
   const warmups = sets.filter((set) => set.isWarmup).length;
   const working = sets.length - warmups;
-  if (sets.length === 0) return 'No sets yet';
+  if (sets.length === 0) return hint ?? 'No sets yet';
   return warmups > 0 ? `${pluralSets(working)}, ${warmups} warm-up` : pluralSets(working);
 }
 
-export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDown, onSwap, onRemove }: ExerciseCardProps) {
+export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDown, onSwap, onRemove, hint }: ExerciseCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const done = sets.some((set) => !set.isWarmup);
   const chooseMenuItem = (action: () => void) => () => {
@@ -40,7 +42,7 @@ export function ExerciseCard({ entry, exercise, sets, onOpen, onMoveUp, onMoveDo
             {exercise?.name ?? 'Unknown exercise'}
             {entry.isMainLift && <span class="star" aria-label="main lift"> ★</span>}
           </span>
-          <span class="card-sub">{setsSummary(sets)}</span>
+          <span class="card-sub">{setsSummary(sets, hint)}</span>
         </span>
       </button>
       <button type="button" class="card-menu-button" aria-label="Exercise menu" onClick={() => setMenuOpen(!menuOpen)}>
