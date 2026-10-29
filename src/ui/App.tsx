@@ -105,6 +105,12 @@ export function App() {
   const ready = startup.state === 'ready';
   useWakeLock(ready && active !== null);
 
+  // The window scrolls as one for every screen, so a new screen would inherit the last one's offset. On a page
+  // too short to scroll (History) the browser squeezes that offset away, which can leave fixed bars out of place.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route]);
+
   useEffect(() => {
     // Read the real address, not the remembered route, which can lag a moment behind a navigation just made.
     if (ready && !active && needsActiveWorkout(parseRoute(window.location.hash))) navigate('#/');
