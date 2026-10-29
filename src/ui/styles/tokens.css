@@ -13,6 +13,7 @@
   --accent-soft: rgba(197, 240, 74, 0.12);
   --accent-line: rgba(197, 240, 74, 0.3);
   --warm: #ffb547;
+  --mid: #e2d248;
   --warm-soft: rgba(255, 181, 71, 0.14);
   --danger: #ff6b6b;
   --danger-soft: rgba(255, 107, 107, 0.14);
@@ -53,6 +54,7 @@
   --accent-soft: rgba(77, 124, 15, 0.12);
   --accent-line: rgba(77, 124, 15, 0.35);
   --warm: #a35f00;
+  --mid: #786e08;
   --warm-soft: rgba(163, 95, 0, 0.12);
   --danger: #c62828;
   --danger-soft: rgba(198, 40, 40, 0.1);

@@ -13,6 +13,8 @@ import {
 import { getDb } from '../../src/store/db';
 import { listExercises } from '../../src/store';
 import { weekRange } from '../../src/ui/volume/volumeData';
+import { readFileSync } from 'node:fs';
+import { updateSettings } from '../../src/ui/settings/settings';
 import { fireEvent, renderApp, renderInActivePush, screen, waitFor, SEED_BENCH } from './helpers';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -104,6 +106,51 @@ describe('weekly volume screen', () => {
     renderApp();
     const link = await screen.findByText('Weekly volume by muscle');
     expect(link.closest('a')?.getAttribute('href')).toBe('#/volume');
+  });
+});
+
+describe('priority on the weekly volume screen', () => {
+  const names = () => [...document.querySelectorAll('.volume-name')].map((name) => name.textContent);
+
+  it('lists the muscles furthest behind first and those in range last', async () => {
+    await openStore();
+    await logged(SEED_BENCH, 12);
+    await openVolume();
+    await waitFor(() => expect(row('Chest').textContent).toContain('12 sets'));
+    const order = names();
+    expect(order).toHaveLength(12);
+    // back misses the most (14), chest has reached its 12 and drops below everything still short
+    expect(order[0]).toBe('Back');
+    expect(order.indexOf('Chest')).toBeGreaterThan(order.indexOf('Triceps'));
+    expect(order.at(-1)).toBe('Chest');
+  });
+
+  it('names the three biggest gaps in one line', async () => {
+    await openStore();
+    await logged(SEED_BENCH, 12);
+    await openVolume();
+    expect(await screen.findByText('Furthest behind: Back 14 to go · Biceps 12 · Quads 10')).toBeTruthy();
+  });
+
+  it('colours an untouched muscle as behind, not as disabled', async () => {
+    await openStore();
+    await openVolume();
+    await waitFor(() => expect(row('Back').textContent).toContain('0 sets'));
+    expect(row('Back').className).toContain('zone-below');
+    const volume = readFileSync('src/ui/styles/volume.css', 'utf8');
+    expect(volume).toMatch(/\.volume-row \{[^}]*--zone: var\(--warm\)/);
+    expect(volume).not.toMatch(/--zone: var\(--faint\)/);
+  });
+
+  it('follows the target size when working out who is furthest behind', async () => {
+    await openStore();
+    await updateSettings({ volumeTargets: 'higher' });
+    await logged(SEED_BENCH, 12);
+    await openVolume();
+    // higher: chest needs 15, so with 12 it still misses 3; back 18 is the biggest gap
+    expect(await screen.findByText(/^Furthest behind: Back 18 to go/)).toBeTruthy();
+    // 12 chest sets is on target at the standard size but still building at the higher one
+    expect(row('Chest').className).toContain('zone-building');
   });
 });
 

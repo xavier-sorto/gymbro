@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { MUSCLES, MUSCLE_LABELS, targetFor, zoneFor, type Muscle, type TargetScale, type VolumeZone } from '../../engine';
+import { MUSCLES, MUSCLE_LABELS, muscleGaps, targetFor, zoneFor, type Muscle, type TargetScale, type VolumeZone } from '../../engine';
 import { BackLink } from '../components/BackLink';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { Icon } from '../components/Icon';
@@ -44,6 +44,23 @@ function MuscleRow({ muscle, sets, days, scale }: { muscle: Muscle; sets: number
   );
 }
 
+/** Every muscle, those furthest below the low end of their range first; muscles in range keep the body order below them. */
+function furthestBehindFirst(byMuscle: Record<Muscle, { sets: number }>, scale: TargetScale): Muscle[] {
+  const missing = (muscle: Muscle) => targetFor(muscle, scale).low - byMuscle[muscle].sets;
+  return [...MUSCLES].sort((a, b) => missing(b) - missing(a));
+}
+
+/** One line naming the three biggest gaps, so the week's priority is clear before reading twelve rows. */
+function BehindLine({ byMuscle, scale }: { byMuscle: Record<Muscle, { sets: number; days: number }>; scale: TargetScale }) {
+  const gaps = muscleGaps(byMuscle, scale).slice(0, 3);
+  if (gaps.length === 0) return <p class="volume-behind done">Every muscle has reached its range.</p>;
+  return (
+    <p class="volume-behind">
+      Furthest behind: {gaps.map((gap) => `${MUSCLE_LABELS[gap.muscle]} ${Math.ceil(gap.missing)}${gap === gaps[0] ? ' to go' : ''}`).join(' · ')}
+    </p>
+  );
+}
+
 /** Working sets per muscle for a week against a guideline range, so gaps and overload are easy to see. */
 export function VolumeScreen() {
   const { volumeTargets, weekStartsOn } = useSettings();
@@ -73,8 +90,11 @@ export function VolumeScreen() {
           <span>{setsText(volume.data.unassignedSets)} from exercises with no muscle set are not counted. Pick one in Library.</span>
         </a>
       )}
-      {volume.data?.byMuscle &&
-        MUSCLES.map((muscle) => <MuscleRow key={muscle} muscle={muscle} scale={volumeTargets} {...volume.data!.byMuscle[muscle]} />)}
+      {volume.data && <BehindLine byMuscle={volume.data.byMuscle} scale={volumeTargets} />}
+      {volume.data &&
+        furthestBehindFirst(volume.data.byMuscle, volumeTargets).map((muscle) => (
+          <MuscleRow key={muscle} muscle={muscle} scale={volumeTargets} {...volume.data!.byMuscle[muscle]} />
+        ))}
       <p class="hint volume-note">
         Counts working sets from {weekStartsOn === 'sunday' ? 'Sunday to Saturday' : 'Monday to Sunday'}, not warm-ups. A set also counts half for the muscles it helps, like triceps
         on a bench press. The ranges are guidelines for building muscle: studies start to show better growth from about 10 hard

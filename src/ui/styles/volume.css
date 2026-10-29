@@ -9,18 +9,20 @@ a.suggestion-behind { display: block; font-size: 14px; font-weight: 600; color: 
 .needs-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 12px; }
 .needs-label { font-size: 13px; font-weight: 700; color: var(--muted); margin-right: 4px; }
 .needs-chip { padding: 4px 10px; border-radius: 99px; background: var(--warm-soft); color: var(--warm); font-weight: 700; font-size: 14px; }
+.volume-behind { margin: 4px 2px 10px; font-size: 15px; font-weight: 700; color: var(--warm); }
+.volume-behind.done { color: var(--accent); }
 .volume-range { margin: 0 0 8px; }
 .volume-unassigned { align-items: flex-start; }
 .volume-unassigned .icon { margin-top: 1px; }
-.volume-row { margin: 10px 0; padding: 12px 14px; border-radius: var(--radius); background: var(--surface); --zone: var(--faint); }
-.volume-row.zone-building { --zone: var(--warm); }
+.volume-row { margin: 10px 0; padding: 12px 14px; border-radius: var(--radius); background: var(--surface); --zone: var(--warm); }
+.volume-row.zone-building { --zone: var(--mid); }
 .volume-row.zone-target { --zone: var(--accent); }
 .volume-row.zone-above { --zone: var(--danger); }
 .volume-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .volume-name { font-size: 17px; font-weight: 700; }
 .volume-sets { font-size: 20px; font-weight: 800; color: var(--zone); }
 .volume-bar { position: relative; height: 10px; margin: 8px 0 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
-.volume-band { position: absolute; top: 0; bottom: 0; background: var(--accent-soft); }
+.volume-band { position: absolute; top: 0; bottom: 0; background: var(--accent-line); }
 .volume-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 99px; background: var(--zone); max-width: 100%; }
 .volume-foot { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--muted); }
 .volume-note { text-align: left; margin-top: 14px; font-size: 14px; }

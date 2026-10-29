@@ -36,6 +36,16 @@ describe('text colours on the surfaces they sit on', () => {
     }
   }
 
+  for (const [name, theme] of Object.entries(themes)) {
+    for (const surface of ['--bg', '--surface']) {
+      for (const text of ['--warm', '--mid', '--accent', '--danger']) {
+        it(`${name}: status colour ${text} on ${surface} is at least 4.5:1`, () => {
+          expect(contrast(theme[text]!, theme[surface]!)).toBeGreaterThanOrEqual(4.5);
+        });
+      }
+    }
+  }
+
   it('keeps the faint text visibly quieter than the muted text', () => {
     for (const theme of Object.values(themes)) {
       expect(theme['--faint']).not.toBe(theme['--muted']);
