@@ -1,5 +1,6 @@
 import type { Exercise } from '../../store';
 import { StepperField } from '../components/StepperField';
+import { useCssHeight } from '../useCssHeight';
 import type { SaveFailure } from './useExerciseLog';
 import type { SetDraft } from './setDraft';
 
@@ -9,6 +10,10 @@ interface NextSetRowProps {
   failure: SaveFailure | null;
   onChange: (patch: Partial<SetDraft>) => void;
   onSave: () => void;
+  /** One line shown above the steppers, e.g. today's target. */
+  today?: string;
+  /** When docked, the CSS variable that should follow this panel's height. */
+  heightVar?: string;
 }
 
 const TIMED_STEP_SECONDS = 5;
@@ -16,10 +21,12 @@ const TIMED_STEP_SECONDS = 5;
 const fieldError = (failure: SaveFailure | null, field: string) =>
   failure?.kind === 'validation' && failure.field === field ? failure.message : null;
 
-export function NextSetRow({ exercise, draft, failure, onChange, onSave }: NextSetRowProps) {
+export function NextSetRow({ exercise, draft, failure, onChange, onSave, today, heightVar }: NextSetRowProps) {
   const failed = failure !== null && failure.kind !== 'validation';
+  const heightRef = useCssHeight(heightVar ?? null);
   return (
-    <section class={`next-set${failed ? ' next-set-failed' : ''}`}>
+    <section ref={heightRef} class={`next-set${failed ? ' next-set-failed' : ''}`}>
+      {today && <p class="next-set-today">{today}</p>}
       {failed && <p class="field-error">{failure.kind === 'storage-full' ? `Not saved. ${failure.message}` : failure.message}</p>}
       {exercise.kind === 'weighted' && (
         <StepperField

@@ -32,7 +32,9 @@
   --radius-small: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --bottom-bar: 64px;
-  --rest-height: 104px;
+  /* First-paint estimates; the app measures the real bars and overrides these while they are on screen. */
+  --rest-height: 121px;
+  --logger-height: 300px;
   --column: 430px;
 }
 
